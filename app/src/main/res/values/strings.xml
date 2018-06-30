@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">BakingApp</string>
+
+
+
+
+    <!-- Error messages-->
+    <string name="detail_error_message">Recipe data not available</string>
+    <string name="error_message">Data not available. Check your Internet connection.</string>
+
+</resources>
+
