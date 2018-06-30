@@ -5,11 +5,14 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-@Parcel
-public class Recipe {
+
+//A Parcelable class with a Parcelable object as one of the data field
+// The parcelable object has to be the first one in the read and write
+
+public class Recipe implements Parcelable{
     private String name;
-    private ArrayList<Ingredient> ingredients;
-    private ArrayList<Step> steps;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
+    private ArrayList<Step> steps = new ArrayList<>();
     private int servings;
     private String image;
 
@@ -18,8 +21,10 @@ public class Recipe {
     public Recipe() {
     }
 
-    public Recipe(String name, int servings, String image) {
+    public Recipe(String name, ArrayList<Ingredient> ingredients, ArrayList<Step> steps, int servings, String image) {
         this.name = name;
+        this.ingredients = ingredients;
+        this.steps = steps;
         this.servings = servings;
         this.image = image;
     }
@@ -30,12 +35,20 @@ public class Recipe {
     public int getServings() {
         return servings;
     }
+    public ArrayList<Ingredient> getIngredients() {
+        return ingredients;
+    }
+    public ArrayList<Step> getSteps() {
+        return steps;
+    }
     public String getImage() {
         return image;
     }
 
     private Recipe(Parcel in){
         name = in.readString();
+        in.readTypedList(this.ingredients, Ingredient.CREATOR);
+        in.readTypedList(this.steps, Step.CREATOR);
         servings = in.readInt();
         image = in.readString();
     }
@@ -48,6 +61,8 @@ public class Recipe {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(name);
+        parcel.writeTypedList(ingredients);
+        parcel.writeTypedList(steps);
         parcel.writeInt(servings);
         parcel.writeString(image);
     }
