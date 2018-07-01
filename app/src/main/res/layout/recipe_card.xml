@@ -18,12 +18,12 @@
         android:minWidth="185dp">
 
         <ImageView
-            android:id="@+id/tv_poster"
+            android:id="@+id/tv_image"
             android:layout_width="185dp"
             android:layout_height="278dp"
             android:layout_marginBottom="32dp"
             android:layout_marginTop="8dp"
-            android:contentDescription="@string/movie_poster_content_description"
+            android:contentDescription="@string/food_description"
             android:scaleType="centerCrop"
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +32,7 @@
             card_view:layout_constraintVertical_bias="0.0" />
 
         <TextView
-            android:id="@+id/tv_movie_title"
+            android:id="@+id/tv_recipe_title"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:gravity="center"
@@ -44,7 +44,7 @@
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/tv_poster" />
+            card_view:layout_constraintTop_toBottomOf="@+id/tv_image" />
 
     </android.support.constraint.ConstraintLayout>
 

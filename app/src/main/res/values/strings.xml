@@ -8,5 +8,7 @@
     <string name="detail_error_message">Recipe data not available</string>
     <string name="error_message">Data not available. Check your Internet connection.</string>
 
+    <string name="food_description">Image of food from the recipe</string>
+
 </resources>
 

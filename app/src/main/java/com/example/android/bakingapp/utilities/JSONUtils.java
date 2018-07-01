@@ -4,47 +4,178 @@ import android.content.Context;
 import android.graphics.Movie;
 import android.util.Log;
 
+import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
+import com.example.android.bakingapp.model.Step;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JSONUtils{
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
-        //Parse Recipe data from Json
-        public static Recipe[] getRecipeDataFromJson(Context context, String recipeJsonStr)
-                throws JSONException {
+import timber.log.Timber;
 
-            /* Movie information. Each movie's info is an element of the "results" array */
-            final String OWM_ID = "id";
-            final String OWN_NAME = "name";
-            final String OWM_INGREDIENTS = "ingredients";
-            final String OWM_QUANTITY = "quantity";
-            final String OWM_MEASURE = "measure";
-            final String OWN_INGREDIENT = "ingredient";
-            final String OWN_STEPS = "steps";
+public class JSONUtils {
 
-            //CAN BE WRONG - BETTER TO UPLOAD NEW ID's
-            final String OWM_STEP_ID = "id";
-            final String OWN_SHORT_DESCRIPTION = "shortDescription";
-            final String OWN_DESCRIPTION = "description";
-            final String OWN_VIDEO_URL = "videoURL";
-            final String OWN_THUMBNAIL_URL = "thumbnailURL";
-            final String OWN_SERVINGS = "servings";
-            final String OWN_IMAGE = "image";
+    //Parse Recipe data from Json
+    public static ArrayList<Recipe> getRecipeDataFromJson(Context context, String recipeJsonStr)
+            throws JSONException {
+
+        /* Movie information. Each movie's info is an element of the "results" array */
+        final String OWM_ID = "id";
+        final String OWN_NAME = "name";
+
+        final String OWM_INGREDIENTS = "ingredients";
+        final String OWM_QUANTITY = "quantity";
+        final String OWM_MEASURE = "measure";
+        final String OWN_INGREDIENT = "ingredient";
+
+        final String OWN_STEPS = "steps";
+        //CAN BE WRONG - BETTER TO UPLOAD NEW ID's
+        final String OWM_STEP_ID = "id";
+        final String OWN_SHORT_DESCRIPTION = "shortDescription";
+        final String OWN_DESCRIPTION = "description";
+        final String OWN_VIDEO_URL = "videoURL";
+        final String OWN_THUMBNAIL_URL = "thumbnailURL";
+        final String OWN_SERVINGS = "servings";
+        final String OWN_IMAGE = "image";
+
+        /* Movie array to hold each movie's info */
+        // Recipe[] parsedRecipeData;
+
+        // Gson gson = new Gson();
+        //Type recipeListType = new TypeToken<ArrayList<Recipe>>(){}.getType();
+        //ArrayList<Recipe> recipeList = gson.fromJson(recipeJsonStr, recipeListType);
+
+        ArrayList<Recipe> recipeList = new ArrayList();
+
+        JSONArray recipeJson = new JSONArray(recipeJsonStr);
 
 
-            /* Movie array to hold each movie's info */
-            Recipe[] parsedRecipeData;
+        for (int a = 0; a < recipeJson.length(); a++) {
+            String name;
+            ArrayList<Ingredient> ingredientsList = new ArrayList<>();
+            ArrayList<Step> stepList = new ArrayList<>();
+            int servings;
+            String image;
 
-            /*
-            JSONObject movieJson = new JSONObject(recipeJsonStr);
-            JSONArray movieArray = movieJson.getJSONArray(OWM_RESULTS);
+            JSONObject recipeInfo = recipeJson.getJSONObject(a);
 
-            parsedMovieData = new Recipe[movieArray.length()];
+            name = recipeInfo.getString(OWN_NAME);
 
-            for (int i = 0; i < movieArray.length(); i++) {
+            JSONArray ingredientsArray = recipeInfo.getJSONArray(OWM_INGREDIENTS);
+
+            for (int i = 0; i < ingredientsArray.length(); i++) {
+                double quantity;
+                String measure;
+                String ingredient;
+
+                JSONObject ingredientInfo = ingredientsArray.getJSONObject(i);
+
+                quantity = ingredientInfo.getDouble(OWM_QUANTITY);
+                measure = ingredientInfo.getString(OWM_MEASURE);
+                ingredient = ingredientInfo.getString(OWN_INGREDIENT);
+
+                ingredientsList.add(new Ingredient(quantity, measure, ingredient));
+            }
+
+            JSONArray stepsArray = recipeInfo.getJSONArray(OWN_STEPS);
+
+            for (int i = 0; i < stepsArray.length(); i++) {
+                int stepId;
+                String shortDescription;
+                String description;
+                String videoURL;
+
+                JSONObject stepInfo = stepsArray.getJSONObject(i);
+
+                stepId = i;
+                shortDescription = stepInfo.getString(OWN_SHORT_DESCRIPTION);
+                description = stepInfo.getString(OWN_DESCRIPTION);
+                if (stepInfo.getString(OWN_VIDEO_URL) != null) {
+                    videoURL = stepInfo.getString(OWN_VIDEO_URL);
+                } else {
+                    videoURL = stepInfo.getString(OWN_THUMBNAIL_URL);
+                }
+
+                stepList.add(new Step(stepId, shortDescription, description, videoURL));
+            }
+
+            servings = recipeInfo.getInt(OWN_SERVINGS);
+            image = recipeInfo.getString(OWN_IMAGE);
+
+            recipeList.add(new Recipe(name, ingredientsList, stepList, servings, image));
+        }
+
+        return recipeList;
+
+    }
+}
+
+
+
+
+
+
+
+                /* Get the JSON object representing the movie
+                JSONObject movieInfo = ingredientsArray.getJSONObject(i);
+
+                //checkout GSON library for JSON parsing. Checkout this link : https://github.com/google/gson
+
+                title = movieInfo.getString(OWN_TITLE);
+                originalTitle = movieInfo.getString(OWM_ORIGINAL_TITLE);
+                voteAverage = movieInfo.getDouble(OWM_VOTE_AVERAGE);
+                releaseDate = movieInfo.getString(OWM_RELEASE_DATE);
+                plot = movieInfo.getString(OWM_PLOT);
+                poster_path = movieInfo.getString(OWM_POSTER);
+                poster =  "http://image.tmdb.org/t/p/w185" + poster_path;
+                id = movieInfo.getInt(OWM_ID);
+
+                parsedMovieData[i] = new Movie(title, originalTitle, releaseDate, voteAverage, poster, plot, id);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            for (int i = 0; i < recipeList.size(); i++ ) {
+                Timber.d("JSON recipe:" +recipeList.get(i).getName());
+                Log.d("JSON", "JSON recipe:" + recipeList.get(i).getName());
+            }
+
+            return recipeList;
+        }
+
+
+}
+
+
+            // parsedRecipeData = gson.fromJson(recipeJson, Recipe[].class);
+
+            /*JSONObject recipeJson = new JSONObject(recipeJsonStr);
+            JSONArray ingredientsArray = movieJson.getJSONArray(OWM_RESULTS);
+
+            parsedMovieData = new Recipe[ingredientsArray.length()];
+
+            for (int i = 0; i < ingredientsArray.length(); i++) {
                 String title;
                 String originalTitle;
                 double voteAverage;
@@ -56,7 +187,7 @@ public class JSONUtils{
                 int id;
 
                 /* Get the JSON object representing the movie
-                JSONObject movieInfo = movieArray.getJSONObject(i);
+                JSONObject movieInfo = ingredientsArray.getJSONObject(i);
 
                 //checkout GSON library for JSON parsing. Checkout this link : https://github.com/google/gson
 
@@ -144,4 +275,3 @@ public class JSONUtils{
         }
 
         */
-}

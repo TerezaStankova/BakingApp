@@ -22,6 +22,7 @@ public class NetworkUtils {
         try {
             URL movieQueryURL = new URL(movieQueryUri.toString());
             Timber.v("URL: " + movieQueryURL);
+            Log.v("URL","URL: " + movieQueryURL);
             return movieQueryURL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
