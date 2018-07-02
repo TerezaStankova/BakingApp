@@ -13,22 +13,20 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.bakingapp.model.Recipe;
+import com.example.android.bakingapp.model.Step;
+import com.example.android.bakingapp.ui.DetailActivity;
 import com.example.android.bakingapp.ui.RecipeAdapter.RecipeAdapterOnClickHandler;
 import com.example.android.bakingapp.ui.RecipeAdapter;
 import com.example.android.bakingapp.utilities.JSONUtils;
 import com.example.android.bakingapp.utilities.NetworkUtils;
 
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements RecipeAdapterOnClickHandler {
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     private RecipeAdapter mRecipeAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
-    private ArrayList<Recipe> recipes = new ArrayList();
+    private ArrayList<Recipe> mRecipes = new ArrayList();
     private GridLayoutManager layoutManager;
     private Parcelable mListState;
 
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
 
             if (savedInstanceState != null) {
                 // Load the saved state (the array of trailers) if there is one
-                //recipes = (ArrayList<Recipe>) savedInstanceState.getParcelableArrayList(RECIPES);
+                //mRecipes = (ArrayList<Recipe>) savedInstanceState.getParcelableArrayList(RECIPES);
             }
 
             loadRecipeData();
@@ -186,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 protected void onPostExecute(ArrayList<Recipe> recipeData) {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     if (recipeData != null) {
-                        recipes = recipeData;
+                        mRecipes = recipeData;
                         showRecipeDataView();
                         mRecipeAdapter.setRecipeData(recipeData);
                     } else {
@@ -205,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 // Save list state
                 mListState = layoutManager.onSaveInstanceState();
                 savedInstanceState.putParcelable(LIST_STATE_KEY, mListState);
-                //savedInstanceState.putParcelableArrayList(RECIPES,(ArrayList<? extends Parcelable>) recipes);
+                savedInstanceState.putParcelableArrayList(RECIPES, (ArrayList<Recipe>) mRecipes);
 
             }
 

@@ -1,6 +1,7 @@
-package com.example.android.bakingapp;
+package com.example.android.bakingapp.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Movie;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,13 +15,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.bakingapp.R;
+import com.example.android.bakingapp.model.Ingredient;
+import com.example.android.bakingapp.model.Recipe;
+import com.example.android.bakingapp.model.Step;
+import com.example.android.bakingapp.ui.MasterListFragment;
+import com.example.android.bakingapp.ui.StepsFragment;
 import com.example.android.bakingapp.utilities.JSONUtils;
 import com.example.android.bakingapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
+import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity {
+import timber.log.Timber;
+
+public class DetailActivity extends AppCompatActivity implements MasterListFragment.OnItemClickListener{
+
+    //Fields for recipe's info
+    private String name;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
+    private ArrayList<Step> steps = new ArrayList<>();
+    private int servings;
+    private String image;
 
     private boolean isFavourite;
     private String favouriteTitle;
@@ -28,19 +45,11 @@ public class DetailActivity extends AppCompatActivity {
     // Fields for views
     private Button mButton;
 
-    //Fields for movie's info
-    private int id;
-    private String title;
-    private String originalTitle;
-    private String releaseDate;
-    private String voteAverage;
-    private String poster;
-    private String plot;
-
     private static final String IS_FAVOURITE = "isFavourite";
 
-    // Member variable for the Database
-    private AppDatabase mDb;
+    // Track whether to display a two-pane or single-pane UI
+    // A single-pane display refers to phone screens, and two-pane to larger tablet screens
+    private boolean mTwoPane;
 
 
     @Override
@@ -48,65 +57,131 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        Movie movie = (Movie) getIntent().getParcelableExtra("parcel_data");
+        Recipe recipe = (Recipe) getIntent().getParcelableExtra("parcel_data");
 
-        if (movie == null) {
-            // Movie data unavailable
+        if (recipe == null) {
+            // Recipe data unavailable
             closeOnError();
             return;
         }
-        mDb = AppDatabase.getInstance(getApplicationContext());
 
         //Set views
-        ImageView posterIv = findViewById(R.id.image_iv);
-        mButton = findViewById(R.id.saveButton);
+        mButton = findViewById(R.id.next_button);
 
-        //Set movie´s info
-        id = movie.getId();
-        originalTitle = movie.getOriginalTitle();
-        releaseDate = movie.getReleaseDate();
-        voteAverage = movie.getVoteAverage();
-        poster = movie.getPoster();
-        plot = movie.getPlot();
-        title = movie.getTitle();
+        //Set recipe´s info
+        name = recipe.getName();
+        ingredients = recipe.getIngredients();
+        steps = recipe.getSteps();
+        servings = recipe.getServings();
 
+        setTitle(name);
 
-        if (savedInstanceState != null)
-        {
-            // Load variables here and overwrite the default values
-            isFavourite = savedInstanceState.getBoolean(IS_FAVOURITE, true);
-            setButton(isFavourite);
+        if (steps != null) {
+            // Create a new head  TrailerFragment
+            MasterListFragment masterListFragment = new MasterListFragment();
+
+            // Set the trailers for the head fragment and set the position to the second image in the list
+            masterListFragment.setSteps(steps);
+
+            // Add the fragment to its container using a FragmentManager and a Transaction
+            FragmentManager fragmentManager = getSupportFragmentManager();
+
+            fragmentManager.beginTransaction()
+                    .add(R.id.master_list_fragment, masterListFragment)
+                    .commit();
+        } else {
+            // Steps data unavailable
+            closeOnError();
+            return;
         }
-        else{
-            loadMovieDetailData();
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    favouriteTitle = mDb.movieDao().titleById(id);
-                    isFavourite = favouriteTitle != null;
-                    setButton(isFavourite);
-                }
-            });}
 
-        populateUI(movie);
-        Picasso.with(this)
-                .load(movie.getPoster())
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher)
-                .into(posterIv);
 
-        setTitle(title);
+        // Determine if you're creating a two-pane or single-pane display
+            if(findViewById(R.id.steps_detail_linear_layout) != null) {
+                // This LinearLayout will only initially exist in the two-pane tablet case
+                mTwoPane = true;
 
-        mButton.setOnClickListener(new View.OnClickListener() {
+
+
+            }else { // We're in single-pane mode and displaying fragments on a phone in separate activities
+                mTwoPane = false;
+            }
+
+
+
+
+        /*mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onSaveButtonClicked();
             }
-        });
+        });*/
+
+    }
+
+    private void closeOnError() {
+        finish();
+        Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
+    }
+
+
+    // Define the behavior for onItemSelected
+    public void onItemSelected(int position) {
+        // Create a Toast that displays the position that was clicked
+        Toast.makeText(this, "Position clicked = " + position, Toast.LENGTH_SHORT).show();
+
+        // Store the correct list index no matter where in the image list has been clicked
+        // This ensures that the index will always be a value between 0-11
+        int listIndex = position;
+
+        // Handle the two-pane case and replace existing fragments right when a new image is selected from the master list
+        if (mTwoPane) {
+            // Create two=pane interaction
+
+            StepsFragment newFragment = new StepsFragment();
+            //newFragment.setImageIds(steps);
+            newFragment.setSteps(steps);
+            newFragment.setIngredients(ingredients);
+            newFragment.setListIndex(listIndex);
+            // Replace the old head fragment with a new one
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.detail_description_container, newFragment)
+                    .commit();
+            }
+            else {
+
+            // Handle the single-pane phone case by passing information in a Bundle attached to an Intent
+            // Put this information in a Bundle and attach it to an Intent that will launch an AndroidMeActivity
+            Bundle b = new Bundle();
+            b.putInt("stepIndex", listIndex);
+            Timber.e("clicked");
+            Log.d("clicked", "nextButtonClicked" + listIndex);
+            b.putParcelableArrayList("steps", steps);
+            b.putParcelableArrayList("ingredients", ingredients);
+
+            // Attach the Bundle to an intent
+            final Intent intent = new Intent(this, StepsDetailActivity.class);
+            intent.putExtras(b);
+            startActivity(intent);
+
+
+            /*
+            // The "Next" button launches a new AndroidMeActivity
+            Button nextButton = (Button) findViewById(R.id.next_button);
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Timber.e("clicked");
+                   Log.d("clicked", "nextButtonClicked");
+                    startActivity(intent);
+                }
+            });*/
+        }
 
     }
 
 
+/*
     private void setButton(boolean isFavourite){
         if (isFavourite){
             mButton.setText(R.string.my_favourite);}
@@ -114,10 +189,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private void closeOnError() {
-        finish();
-        Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
-    }
+
 
 
     private void loadMovieDetailData() {
@@ -132,12 +204,14 @@ public class DetailActivity extends AppCompatActivity {
      * fail to fetch the movies.
      */
 
+/*
     private boolean isConnected() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
+    /*
     private void populateUI(Movie movie) {
 
         //findViewById calls - Try Butterknife library https://github.com/JakeWharton/butterknife
@@ -153,13 +227,15 @@ public class DetailActivity extends AppCompatActivity {
         TextView plotView = (TextView) findViewById(R.id.plot_tv);
         plotView.setText(movie.getPlot());
     }
-
+*/
+    /*
     class FetchDetailTrailerTask2 extends AsyncTask<String, Void, Trailer[]> {
 
 
         /*It is recommended to have this AsyncTask class into a separate file to make your code more maintainable.
         https://xelsoft.wordpress.com/2014/11/28/asynctask-implementation-using-callback-interface/
         */
+    /*
 
         @Override
         protected void onPreExecute() {
@@ -278,12 +354,13 @@ public class DetailActivity extends AppCompatActivity {
         }
 
     }
+*/
 
     //Save info about "is favourite?"
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState)
     {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean(IS_FAVOURITE, isFavourite);
+        //savedInstanceState.putBoolean(IS_FAVOURITE, isFavourite);
     }
 }
