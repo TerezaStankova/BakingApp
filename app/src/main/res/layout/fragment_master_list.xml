@@ -23,20 +23,9 @@
             android:id="@+id/ingredients_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ingredients"
-            style="@style/myStepStyle"/>
+            android:text="@string/ingredients"
+            style="@style/myPinkTitleStyle"/>
 
 
     </LinearLayout>
-
-    <!-- The "Next" button -->
-    <Button
-        android:id="@+id/next_button"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:text="Next" />
-
-
 </LinearLayout>

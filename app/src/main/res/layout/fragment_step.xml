@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,11 +17,22 @@
 
     </LinearLayout>
 
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="wrap_content"
+        android:layout_height="180dp" />
+
+    <TextView
+        android:id="@+id/step_long_description2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/myPlainBlackTextStyle" />
+
     <TextView
         android:id="@+id/step_long_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/myIngredientsStyle" />
+        style="@style/myPlainBlackTextStyle" />
 
     <Space
         android:layout_width="match_parent"
@@ -30,21 +41,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
 
 
         <Button
             android:id="@+id/previous_button"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Previous" />
+            android:text="@string/previous" />
 
         <Button
             android:id="@+id/next_button2"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Next" />
+            android:text="@string/next" />
     </LinearLayout>
 </LinearLayout>

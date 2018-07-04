@@ -15,7 +15,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/master_list_fragment"
         android:name="com.example.android.bakingapp.ui.MasterListFragment"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="match_parent" />
 
     <!-- A small divider -->
@@ -23,6 +23,10 @@
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
     <!-- LinearLayout for the containers of detail step description part -->
     <LinearLayout
@@ -37,11 +41,6 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <!-- The container for video of selected step  -->
-        <FrameLayout android:id="@+id/video_container"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:scaleType="centerInside"/>
 
         <!-- Three containers for detail step description part -->
         <!-- This container holds the head BodyPartFragment of the custom Android-Me image -->
@@ -52,5 +51,7 @@
 
 
     </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

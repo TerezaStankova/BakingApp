@@ -7,8 +7,6 @@ import android.util.Log;
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.Step;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,7 +95,7 @@ public class JSONUtils {
                 stepId = i;
                 shortDescription = stepInfo.getString(OWN_SHORT_DESCRIPTION);
                 description = stepInfo.getString(OWN_DESCRIPTION);
-                if (stepInfo.getString(OWN_VIDEO_URL) != null) {
+                if (stepInfo.getString(OWN_VIDEO_URL).length() > 8) {
                     videoURL = stepInfo.getString(OWN_VIDEO_URL);
                 } else {
                     videoURL = stepInfo.getString(OWN_THUMBNAIL_URL);

@@ -1,5 +1,7 @@
 package com.example.android.bakingapp;
 
+//icon: Photo by Artur Rutkowski on Unsplash
+
 import android.content.Context;
 import android.content.Intent;
 

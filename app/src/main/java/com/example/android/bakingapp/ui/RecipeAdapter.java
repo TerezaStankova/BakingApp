@@ -5,8 +5,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Movie;
 import android.media.Image;
+import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,7 +26,10 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdapterViewHolder> {
@@ -56,13 +61,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
      * Cache of the children views for a movie list item.
      */
     public class RecipeAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final TextView mMovieTextView;
-        public final ImageView mPosterImageView;
+
+        @BindView(R.id.tv_recipe_title) TextView mTitleTextView;
+        @BindView(R.id.tv_servings) TextView mServingsTextView;
+        @BindView(R.id.tv_image) ImageView mPosterImageView;
+
 
         public RecipeAdapterViewHolder(View view) {
             super(view);
-            mMovieTextView = (TextView) view.findViewById(R.id.tv_recipe_title);
-            mPosterImageView = (ImageView) view.findViewById(R.id.tv_image);
+            ButterKnife.bind(this, view);
             view.setOnClickListener(this);
         }
 
@@ -102,17 +109,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
      * details for this particular position, using the "position" argument that is conveniently
      * passed into us.
      *
-     * @param movieAdapterViewHolder The ViewHolder which should be updated to represent the
+     * @param recipeAdapterViewHolder The ViewHolder which should be updated to represent the
      *                               contents of the item at the given position in the data set.
      * @param position               The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(RecipeAdapterViewHolder movieAdapterViewHolder, int position) {
+    public void onBindViewHolder(RecipeAdapterViewHolder recipeAdapterViewHolder, int position) {
         Recipe singleRecipe = mRecipeData.get(position);
 
-        Timber.d("recipe " + singleRecipe.getName());
+        Timber.d("recipe %s", singleRecipe.getName());
         Log.d("onBind", "recipe " + singleRecipe.getName());
-        movieAdapterViewHolder.mMovieTextView.setText(singleRecipe.getName());
+        recipeAdapterViewHolder.mTitleTextView.setText(singleRecipe.getName());
+        recipeAdapterViewHolder.mServingsTextView.setText(singleRecipe.getServings() + " servings");
 
         ArrayList<Step> steps = singleRecipe.getSteps();
         Step lastStep = steps.get(steps.size() - 1);
@@ -122,34 +130,51 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         Bitmap thumb = ThumbnailUtils.createVideoThumbnail(path,
                 MediaStore.Images.Thumbnails.MINI_KIND);
 
+        /*
+        Bitmap frame = null;
+
+        try {
+            frame = retriveVideoFrameFromVideo(path);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }*/
+
         Uri thumbo;
         if (thumb != null){
             Log.d("onBind", "ThumbNotNull ");
-        thumbo = getImageUri(movieAdapterViewHolder.itemView.getContext(), thumb);}else {
+        thumbo = getImageUri(recipeAdapterViewHolder.itemView.getContext(), thumb);}else {
            thumbo = null;
             Log.d("onBind", "ThumbNull ");
         }
+/*
+        Uri thumbo;
+        if (frame != null){
+            Log.d("onBind", "ThumbNotNull ");
+            thumbo = getImageUri(recipeAdapterViewHolder.itemView.getContext(), frame);}else {
+            thumbo = null;
+            Log.d("onBind", "ThumbNull ");
+        }*/
 
         //lastStep.getVideoURL()
         //(singleRecipe.getImage().isEmpty())
 
         if (lastStep.getVideoURL().isEmpty()) {
             if (thumbo != null) {
-                Picasso.with(movieAdapterViewHolder.itemView.getContext())
+                Picasso.with(recipeAdapterViewHolder.itemView.getContext())
                         .load(thumbo)
                         .resize(15, 15)
                         .centerCrop()
                         .placeholder(R.mipmap.ic_launcher)
                         .error(R.mipmap.ic_launcher)
-                        .into(movieAdapterViewHolder.mPosterImageView);
+                        .into(recipeAdapterViewHolder.mPosterImageView);
             } else {
-                movieAdapterViewHolder.mPosterImageView.setImageResource(R.mipmap.ic_launcher);}
+                recipeAdapterViewHolder.mPosterImageView.setImageResource(R.mipmap.ic_launcher);}
         } else{
-            Picasso.with(movieAdapterViewHolder.itemView.getContext())
+            Picasso.with(recipeAdapterViewHolder.itemView.getContext())
                     .load(lastStep.getVideoURL())
                     .placeholder(R.mipmap.ic_launcher)
                     .error(R.mipmap.ic_launcher)
-                    .into(movieAdapterViewHolder.mPosterImageView);
+                    .into(recipeAdapterViewHolder.mPosterImageView);
         }
     }
 
@@ -178,6 +203,35 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
     public void setRecipeData(ArrayList<Recipe> recipeData) {
         mRecipeData = recipeData;
         notifyDataSetChanged();
+    }
+
+    public static Bitmap retriveVideoFrameFromVideo(String videoPath)throws Throwable
+    {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever mediaMetadataRetriever = null;
+        try
+        {
+            mediaMetadataRetriever = new MediaMetadataRetriever();
+            if (Build.VERSION.SDK_INT >= 14)
+                mediaMetadataRetriever.setDataSource(videoPath, new HashMap<String, String>());
+            else
+                mediaMetadataRetriever.setDataSource(videoPath);
+            //   mediaMetadataRetriever.setDataSource(videoPath);
+            bitmap = mediaMetadataRetriever.getFrameAtTime(1, MediaMetadataRetriever.OPTION_CLOSEST);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new Throwable("Exception in retriveVideoFrameFromVideo(String videoPath)"+ e.getMessage());
+        }
+        finally
+        {
+            if (mediaMetadataRetriever != null)
+            {
+                mediaMetadataRetriever.release();
+            }
+        }
+        return bitmap;
     }
 
 }

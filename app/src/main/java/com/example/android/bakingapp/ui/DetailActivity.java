@@ -23,6 +23,7 @@ import com.example.android.bakingapp.ui.MasterListFragment;
 import com.example.android.bakingapp.ui.StepsFragment;
 import com.example.android.bakingapp.utilities.JSONUtils;
 import com.example.android.bakingapp.utilities.NetworkUtils;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -38,12 +39,10 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     private ArrayList<Step> steps = new ArrayList<>();
     private int servings;
     private String image;
+    private PlayerView playerView;
 
     private boolean isFavourite;
     private String favouriteTitle;
-
-    // Fields for views
-    private Button mButton;
 
     private static final String IS_FAVOURITE = "isFavourite";
 
@@ -57,6 +56,8 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        //playerView = (PlayerView) findViewById(player_view);
+
         Recipe recipe = (Recipe) getIntent().getParcelableExtra("parcel_data");
 
         if (recipe == null) {
@@ -64,9 +65,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             closeOnError();
             return;
         }
-
-        //Set views
-        mButton = findViewById(R.id.next_button);
 
         //Set recipe´s info
         name = recipe.getName();
@@ -97,15 +95,9 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
 
         // Determine if you're creating a two-pane or single-pane display
-            if(findViewById(R.id.steps_detail_linear_layout) != null) {
-                // This LinearLayout will only initially exist in the two-pane tablet case
-                mTwoPane = true;
-
-
-
-            }else { // We're in single-pane mode and displaying fragments on a phone in separate activities
-                mTwoPane = false;
-            }
+        // This LinearLayout will only initially exist in the two-pane tablet case
+// We're in single-pane mode and displaying fragments on a phone in separate activities
+        mTwoPane = findViewById(R.id.steps_detail_linear_layout) != null;
 
 
 
@@ -132,7 +124,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
         // Store the correct list index no matter where in the image list has been clicked
         // This ensures that the index will always be a value between 0-11
-        int listIndex = position;
 
         // Handle the two-pane case and replace existing fragments right when a new image is selected from the master list
         if (mTwoPane) {
@@ -142,7 +133,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             //newFragment.setImageIds(steps);
             newFragment.setSteps(steps);
             newFragment.setIngredients(ingredients);
-            newFragment.setListIndex(listIndex);
+            newFragment.setListIndex(position);
             // Replace the old head fragment with a new one
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_description_container, newFragment)
@@ -153,9 +144,9 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             // Handle the single-pane phone case by passing information in a Bundle attached to an Intent
             // Put this information in a Bundle and attach it to an Intent that will launch an AndroidMeActivity
             Bundle b = new Bundle();
-            b.putInt("stepIndex", listIndex);
+            b.putInt("stepIndex", position);
             Timber.e("clicked");
-            Log.d("clicked", "nextButtonClicked" + listIndex);
+            Log.d("clicked", "nextButtonClicked" + position);
             b.putParcelableArrayList("steps", steps);
             b.putParcelableArrayList("ingredients", ingredients);
 
