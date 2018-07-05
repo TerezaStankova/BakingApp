@@ -1,10 +1,7 @@
 package com.example.android.bakingapp.ui;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -18,13 +15,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.bakingapp.MainActivity;
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.Step;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -118,74 +118,35 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         Recipe singleRecipe = mRecipeData.get(position);
 
         Timber.d("recipe %s", singleRecipe.getName());
-        Log.d("onBind", "recipe " + singleRecipe.getName());
         recipeAdapterViewHolder.mTitleTextView.setText(singleRecipe.getName());
         recipeAdapterViewHolder.mServingsTextView.setText(singleRecipe.getServings() + " servings");
 
         ArrayList<Step> steps = singleRecipe.getSteps();
         Step lastStep = steps.get(steps.size() - 1);
-        Log.d("onBind Step", "description " + lastStep.getVideoURL() + lastStep.getShortDescription());
-        String path = lastStep.getVideoURL();
+        Timber.d("onBind Step" + lastStep.getVideoURL() + lastStep.getShortDescription());
 
-        Bitmap thumb = ThumbnailUtils.createVideoThumbnail(path,
-                MediaStore.Images.Thumbnails.MINI_KIND);
+        Uri uri = Uri.parse(lastStep.getVideoURL() )
 
-        /*
-        Bitmap frame = null;
-
-        try {
-            frame = retriveVideoFrameFromVideo(path);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }*/
-
-        Uri thumbo;
-        if (thumb != null){
-            Log.d("onBind", "ThumbNotNull ");
-        thumbo = getImageUri(recipeAdapterViewHolder.itemView.getContext(), thumb);}else {
-           thumbo = null;
-            Log.d("onBind", "ThumbNull ");
-        }
-/*
-        Uri thumbo;
-        if (frame != null){
-            Log.d("onBind", "ThumbNotNull ");
-            thumbo = getImageUri(recipeAdapterViewHolder.itemView.getContext(), frame);}else {
-            thumbo = null;
-            Log.d("onBind", "ThumbNull ");
-        }*/
-
-        //lastStep.getVideoURL()
-        //(singleRecipe.getImage().isEmpty())
-
-        if (lastStep.getVideoURL().isEmpty()) {
-            if (thumbo != null) {
-                Picasso.with(recipeAdapterViewHolder.itemView.getContext())
-                        .load(thumbo)
-                        .resize(15, 15)
-                        .centerCrop()
+        if (singleRecipe.getImage().isEmpty()) {
+            if (uri != null) {
+                Glide.with(recipeAdapterViewHolder.itemView.getContext())
+                        .load(uri)
+                        .transform(new GlideRoundTransform(mContext, 16))
+                        .thumbnail(0.1f)
                         .placeholder(R.mipmap.ic_launcher)
                         .error(R.mipmap.ic_launcher)
                         .into(recipeAdapterViewHolder.mPosterImageView);
+
             } else {
                 recipeAdapterViewHolder.mPosterImageView.setImageResource(R.mipmap.ic_launcher);}
         } else{
-            Picasso.with(recipeAdapterViewHolder.itemView.getContext())
+            Glide.with(recipeAdapterViewHolder.itemView.getContext())
                     .load(lastStep.getVideoURL())
                     .placeholder(R.mipmap.ic_launcher)
                     .error(R.mipmap.ic_launcher)
                     .into(recipeAdapterViewHolder.mPosterImageView);
         }
     }
-
-
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
 
     /**
      * This method simply returns the number of items to display. It is used behind the scenes
@@ -204,35 +165,5 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         mRecipeData = recipeData;
         notifyDataSetChanged();
     }
-
-    public static Bitmap retriveVideoFrameFromVideo(String videoPath)throws Throwable
-    {
-        Bitmap bitmap = null;
-        MediaMetadataRetriever mediaMetadataRetriever = null;
-        try
-        {
-            mediaMetadataRetriever = new MediaMetadataRetriever();
-            if (Build.VERSION.SDK_INT >= 14)
-                mediaMetadataRetriever.setDataSource(videoPath, new HashMap<String, String>());
-            else
-                mediaMetadataRetriever.setDataSource(videoPath);
-            //   mediaMetadataRetriever.setDataSource(videoPath);
-            bitmap = mediaMetadataRetriever.getFrameAtTime(1, MediaMetadataRetriever.OPTION_CLOSEST);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            throw new Throwable("Exception in retriveVideoFrameFromVideo(String videoPath)"+ e.getMessage());
-        }
-        finally
-        {
-            if (mediaMetadataRetriever != null)
-            {
-                mediaMetadataRetriever.release();
-            }
-        }
-        return bitmap;
-    }
-
 }
 

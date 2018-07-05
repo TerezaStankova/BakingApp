@@ -1,32 +1,21 @@
 package com.example.android.bakingapp.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Movie;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.Step;
-import com.example.android.bakingapp.ui.MasterListFragment;
-import com.example.android.bakingapp.ui.StepsFragment;
-import com.example.android.bakingapp.utilities.JSONUtils;
-import com.example.android.bakingapp.utilities.NetworkUtils;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.squareup.picasso.Picasso;
 
-import java.net.URL;
+
 import java.util.ArrayList;
 
 import timber.log.Timber;
@@ -37,14 +26,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     private String name;
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private ArrayList<Step> steps = new ArrayList<>();
-    private int servings;
-    private String image;
-    private PlayerView playerView;
-
-    private boolean isFavourite;
-    private String favouriteTitle;
-
-    private static final String IS_FAVOURITE = "isFavourite";
 
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
@@ -55,8 +36,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
-        //playerView = (PlayerView) findViewById(player_view);
 
         Recipe recipe = (Recipe) getIntent().getParcelableExtra("parcel_data");
 
@@ -70,8 +49,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
         name = recipe.getName();
         ingredients = recipe.getIngredients();
         steps = recipe.getSteps();
-        servings = recipe.getServings();
-
         setTitle(name);
 
         if (steps != null) {
@@ -80,6 +57,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
             // Set the trailers for the head fragment and set the position to the second image in the list
             masterListFragment.setSteps(steps);
+            masterListFragment.setRecipe(recipe);
 
             // Add the fragment to its container using a FragmentManager and a Transaction
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -95,19 +73,29 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
 
         // Determine if you're creating a two-pane or single-pane display
-        // This LinearLayout will only initially exist in the two-pane tablet case
-// We're in single-pane mode and displaying fragments on a phone in separate activities
-        mTwoPane = findViewById(R.id.steps_detail_linear_layout) != null;
+        if(findViewById(R.id.steps_detail_linear_layout) != null) {
+            // This LinearLayout will only initially exist in the two-pane tablet case
+            mTwoPane = true;
+
+            if(savedInstanceState == null) {
+                // In two-pane mode, add initial DetailStepFragments to the screen
+                DetailStepsFragment newFragment = new DetailStepsFragment();
+                //newFragment.setImageIds(steps);
+                newFragment.setSteps(steps);
+                newFragment.setIngredients(ingredients);
+                newFragment.setListIndex(0);
+                // Replace the old head fragment with a new one
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.detail_description_container, newFragment)
+                        .commit();
+                }
+        } else {
+            // We're in single-pane mode and displaying fragments on a phone in separate activities
+            mTwoPane = false;
+        }
 
 
 
-
-        /*mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSaveButtonClicked();
-            }
-        });*/
 
     }
 
@@ -129,7 +117,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
         if (mTwoPane) {
             // Create two=pane interaction
 
-            StepsFragment newFragment = new StepsFragment();
+            DetailStepsFragment newFragment = new DetailStepsFragment();
             //newFragment.setImageIds(steps);
             newFragment.setSteps(steps);
             newFragment.setIngredients(ingredients);

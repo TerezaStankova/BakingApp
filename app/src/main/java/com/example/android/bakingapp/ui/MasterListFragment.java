@@ -17,22 +17,11 @@ import com.example.android.bakingapp.model.Step;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 public class MasterListFragment extends Fragment {
 
-
-    // Final Strings to store state information about the steps
-    private static final String STEPS = "steps";
-    private static final String RECIPE = "recipe";
-
-    // Tag for logging
-    private static final String TAG = "MaterListFragment";
-
-    // Variables to store an array of steps
-    private ArrayList<Step> mSteps = new ArrayList<>();
-
-    private Recipe mRecipe;
-
-    // Define a new interface OnImageClickListener that triggers a callback in the host activity
+    // Define a new interface OnItemClickListener that triggers a callback in the host activity
     OnItemClickListener mCallback;
 
     // OnImageClickListener interface, calls a method in the host activity named onImageSelected
@@ -51,9 +40,22 @@ public class MasterListFragment extends Fragment {
             mCallback = (OnItemClickListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement OnImageClickListener");
+                    + " must implement OnItemClickListener");
         }
     }
+
+
+    // Final Strings to store state information about the steps
+    private static final String STEPS = "steps";
+    private static final String RECIPE = "recipe";
+
+    // Tag for logging
+    private static final String TAG = "MasterListFragment";
+
+    // Variables to store an array of steps
+    private ArrayList<Step> mSteps = new ArrayList<>();
+
+    private Recipe mRecipe;
 
 
     // Mandatory empty constructor
@@ -76,26 +78,38 @@ public class MasterListFragment extends Fragment {
         // Get a reference to the linear layout in the fragment layout
         //FINAL?
         final LinearLayout stepsInfoLayout = (LinearLayout) rootView.findViewById(R.id.steps_linear_layout);
-        final TextView ingredientsLabelTextView = (TextView) rootView.findViewById(R.id.ingredients_label);
-        ingredientsLabelTextView.setOnClickListener(new View.OnClickListener() {
+        stepsInfoLayout.removeAllViews();
+
+        View IngredientLabel = LayoutInflater.from(getActivity()).inflate(
+                R.layout.step_list_item, null);
+
+        TextView mIngredientLabelText = (TextView) IngredientLabel.findViewById(R.id.step_short_description);
+        mIngredientLabelText.setText(" List of Ingredients ");
+        IngredientLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mCallback.onItemSelected(0);
             }
         });
 
+        if (stepsInfoLayout != null) {
+            stepsInfoLayout.addView(IngredientLabel);
+        }
+
 
         if (mSteps != null) {
 
+            int a = 1;
             for (final Step step : mSteps) {
                 if (step != null) {
-
                     View mStepItem = LayoutInflater.from(getActivity()).inflate(
                             R.layout.step_list_item, null);
 
-                    TextView mMovieTrailerTitle = (TextView) mStepItem.findViewById(R.id.step_short_description);
-                    mMovieTrailerTitle.setText(step.getShortDescription());
-                    Log.v(TAG, "Step Name: " + step.getShortDescription());
+                    TextView mStepName = (TextView) mStepItem.findViewById(R.id.step_short_description);
+
+                    mStepName.setText(" " + a + ". " + step.getShortDescription());
+                    a++;
+                    Timber.v("Step Name: " + step.getShortDescription());
 
                     mStepItem.setOnClickListener(new View.OnClickListener() {
                         @Override

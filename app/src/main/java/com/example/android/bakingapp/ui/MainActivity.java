@@ -1,4 +1,4 @@
-package com.example.android.bakingapp;
+package com.example.android.bakingapp.ui;
 
 //icon: Photo by Artur Rutkowski on Unsplash
 
@@ -14,15 +14,15 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.bakingapp.IngredientsService;
+import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Recipe;
-import com.example.android.bakingapp.model.Step;
-import com.example.android.bakingapp.ui.DetailActivity;
 import com.example.android.bakingapp.ui.RecipeAdapter.RecipeAdapterOnClickHandler;
-import com.example.android.bakingapp.ui.RecipeAdapter;
 import com.example.android.bakingapp.utilities.JSONUtils;
 import com.example.android.bakingapp.utilities.NetworkUtils;
 
@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 Context context = this;
                 Recipe recipe;
                 recipe = singleRecipe;
+                IngredientsService.startActionAddIngredients(this, recipe.getName(), recipe.getIngredients());
+                Log.d("MAIN", "sent" + recipe.getName());
                 Class destinationClass = DetailActivity.class;
                 Intent intentToStartDetailActivity = new Intent(context, destinationClass);
                 intentToStartDetailActivity.putExtra("parcel_data", recipe);

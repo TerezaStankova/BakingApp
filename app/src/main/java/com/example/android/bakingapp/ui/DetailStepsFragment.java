@@ -38,7 +38,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class StepsFragment extends Fragment {
+public class DetailStepsFragment extends Fragment {
 
     // Final Strings to store state information about the list of images and list index
     public static final String IMAGE_ID_LIST = "image_ids";
@@ -47,7 +47,7 @@ public class StepsFragment extends Fragment {
     public static final String LIST_INDEX = "list_index";
 
     // Tag for logging
-    private static final String TAG = "StepsFragment";
+    private static final String TAG = "DetailStepsFragment";
 
     // Variables to store a list of image resources and the index of the image that this fragment displays
     private List<Integer> mStepIds;
@@ -67,7 +67,7 @@ public class StepsFragment extends Fragment {
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment
      */
-    public StepsFragment() {
+    public DetailStepsFragment() {
     }
 
     /**
@@ -88,61 +88,6 @@ public class StepsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
 
         playerView = (PlayerView) rootView.findViewById(R.id.player_view);
-
-        /*
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
-
-        playerView.setPlayer(player);
-*/
-
-        /*
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
-
-        playerView.setPlayer(player);
-
-        player.setPlayWhenReady(shouldAutoPlay);
-
-        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
-                mediaDataSourceFactory, extractorsFactory, null, null);
-        player.prepare(mediaSource);*/
-
-        /*
-        mainHandler = new Handler();
-        userAgent = Util.getUserAgent(getContext(), "BakingApp");
-        mediaDataSourceFactory = buildDataSourceFactory();
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
-        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(getActivity()), trackSelector, new DefaultLoadControl());
-        playerView.setPlayer(player);
-        playerView.requestFocus();
-        playVideoInit();*/
-
-/*
-        // 1. Create a default TrackSelector
-        Handler mainHandler = new Handler();
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        DefaultTrackSelector trackSelector =
-                new DefaultTrackSelector(videoTrackSelectionFactory);
-
-// 2. Create the player
-        SimpleExoPlayer player =
-                ExoPlayerFactory.newSimpleInstance(context, trackSelector);
-*/
-
-
 
         // Get a reference to the ImageView in the fragment layout
         //final ImageView imageView = (ImageView) rootView.findViewById(R.id.body_part_image_view);
@@ -232,19 +177,20 @@ public class StepsFragment extends Fragment {
 
 
     public void initializeVideoPlayer(){
-        player = ExoPlayerFactory.newSimpleInstance(
-                new DefaultRenderersFactory(getContext()),
-                new DefaultTrackSelector(), new DefaultLoadControl());
+        if (path != null) {
+            player = ExoPlayerFactory.newSimpleInstance(
+                    new DefaultRenderersFactory(getContext()),
+                    new DefaultTrackSelector(), new DefaultLoadControl());
 
-        playerView.setPlayer(player);
+            playerView.setPlayer(player);
 
-        player.setPlayWhenReady(playWhenReady);
-        player.seekTo(currentWindow, playbackPosition);
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(currentWindow, playbackPosition);
 
-        Uri uri = Uri.parse(path);
-        MediaSource mediaSource = buildMediaSource(uri);
-        player.prepare(mediaSource, true, false);
-
+            Uri uri = Uri.parse(path);
+            MediaSource mediaSource = buildMediaSource(uri);
+            player.prepare(mediaSource, true, false);
+        }
     }
 
     private MediaSource buildMediaSource(Uri uri) {
@@ -315,17 +261,14 @@ public class StepsFragment extends Fragment {
 
                     TextView mIngredientName = (TextView) mIngredientItem.findViewById(R.id.ingredient_name);
                     Double quantityDouble = ingredient.getQuantity();
-                    mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString() + " " + ingredient.getMeasure().toLowerCase());
-
-
+                    mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
+                            + " " + ingredient.getMeasure().toLowerCase());
 
                     Log.v(TAG, "Quantity: " + String.valueOf((ingredient.getQuantity())));
                     Timber.d("Quantity");
 
-
                     ingredientsInfoLayout.addView(mIngredientItem);
                     a++;
-
                 }
             }
         } else {
@@ -355,13 +298,27 @@ public class StepsFragment extends Fragment {
 
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
-        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        playerView.setSystemUiVisibility(
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
+
+    // Shows the system bars by removing all the flags
+// except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        playerView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+
 
     @Override
     public void onResume() {

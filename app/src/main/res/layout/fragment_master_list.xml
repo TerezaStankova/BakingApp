@@ -3,29 +3,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
+    android:verticalSpacing="8dp"
     android:orientation="vertical">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/steps_linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="7"
-        android:adjustViewBounds="true"
-        android:gravity="center"
-        android:horizontalSpacing="8dp"
+        android:layout_height="wrap_content"
         android:padding="16dp"
-        android:stretchMode="columnWidth"
         android:verticalSpacing="8dp"
-        android:orientation="vertical">
+        android:orientation="vertical" />
 
-        <TextView
-            android:id="@+id/ingredients_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredients"
-            style="@style/myPinkTitleStyle"/>
-
-
-    </LinearLayout>
 </LinearLayout>

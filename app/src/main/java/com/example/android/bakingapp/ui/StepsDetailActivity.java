@@ -1,7 +1,6 @@
 package com.example.android.bakingapp.ui;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -34,7 +33,7 @@ public class StepsDetailActivity extends AppCompatActivity {
             ArrayList<Ingredient> ingredients = getIntent().getParcelableArrayListExtra("ingredients");
             Log.d("StepsDetail", "step1: " + steps.get(steps.size()-1).getShortDescription());
 
-            StepsFragment newFragment = new StepsFragment();
+            DetailStepsFragment newFragment = new DetailStepsFragment();
             //newFragment.setImageIds(steps);
             newFragment.setListIndex(listIndex);
             newFragment.setSteps(steps);

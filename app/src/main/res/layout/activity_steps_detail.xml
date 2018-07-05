@@ -3,14 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context="com.example.android.bakingapp.ui.StepsDetailActivity">
 
     <!-- LinearLayout for the containers of detail step description part -->
     <LinearLayout
         android:id="@+id/steps_detail_linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@android:color/white"
         android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
@@ -22,7 +22,7 @@
         <!-- The containers for detail step description part -->
         <FrameLayout android:id="@+id/detail_description_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:scaleType="centerInside"/>
 
 

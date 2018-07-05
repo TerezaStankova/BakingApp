@@ -11,5 +11,7 @@ public class MyApplication extends Application {
         super.onCreate();
         if (BuildConfig.DEBUG)
             Timber.plant(new BakingDebugTree());
+        else
+            Timber.plant(new ReleaseTree());
     }
 }

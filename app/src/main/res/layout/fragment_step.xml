@@ -1,64 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <LinearLayout
+<android.support.constraint.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/ingredients_linear_layout"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="2dp"
-        android:verticalSpacing="4dp"
-        android:orientation="vertical">
-
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/activity_horizontal_margin">
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/player_view"
-        android:layout_width="wrap_content"
-        android:layout_height="180dp" />
-
-    <TextView
-        android:id="@+id/step_long_description2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/myPlainBlackTextStyle" />
-
-    <TextView
-        android:id="@+id/step_long_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/myPlainBlackTextStyle" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/poster_horizontal_margin"/>
+        app:show_timeout="1000"
+        app:fastforward_increment="5000"
+        app:rewind_increment="50000"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:foregroundGravity="center"
+        android:minHeight="90dp"
+        android:minWidth="@dimen/exo_media_button_width"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:resize_mode="fit"/>
 
     <LinearLayout
+        android:id="@+id/detail_description_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_view">
+
+        <TextView
+            android:id="@+id/step_long_description"
+            style="@style/myPlainBlackTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/space"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="2dp" />
+
+        <LinearLayout
+            android:id="@+id/ingredients_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="2dp"
+            android:verticalSpacing="4dp"
+            app:layout_constraintBottom_toTopOf="@+id/space"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="8dp">
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:orientation="horizontal"
-        style="?android:attr/buttonBarStyle">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_min="20dp"
+        app:layout_constraintStart_toStartOf="parent">
 
 
         <Button
             android:id="@+id/previous_button"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="@string/previous" />
+            android:background="@color/colorAccentDark"
+            android:minHeight="15dp"
+            android:minLines="1"
+            android:minWidth="15dp"
+            android:padding="4dp"
+            android:text="@string/previous"
+            android:textColor="@color/TextOnDark"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/next_button2"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="@string/next" />
+            android:background="@color/colorAccentDark"
+            android:minHeight="15dp"
+            android:minLines="1"
+            android:minWidth="15dp"
+            android:padding="4dp"
+            android:text="@string/next"
+            android:textColor="@color/TextOnDark"
+            android:textStyle="bold" />
+
     </LinearLayout>
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
+
