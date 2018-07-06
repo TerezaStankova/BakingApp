@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.GridView;
+
 import android.widget.Toast;
 
 import com.example.android.bakingapp.R;
@@ -50,34 +48,16 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
         ingredients = recipe.getIngredients();
         steps = recipe.getSteps();
         setTitle(name);
-
-        if (steps != null) {
-            // Create a new head  TrailerFragment
-            MasterListFragment masterListFragment = new MasterListFragment();
-
-            // Set the trailers for the head fragment and set the position to the second image in the list
-            masterListFragment.setSteps(steps);
-            masterListFragment.setRecipe(recipe);
-
-            // Add the fragment to its container using a FragmentManager and a Transaction
-            FragmentManager fragmentManager = getSupportFragmentManager();
-
-            fragmentManager.beginTransaction()
-                    .add(R.id.master_list_fragment, masterListFragment)
-                    .commit();
-        } else {
-            // Steps data unavailable
-            closeOnError();
-            return;
-        }
-
+        Log.d("Name ", "onCreateDetailActivity" + name);
 
         // Determine if you're creating a two-pane or single-pane display
-        if(findViewById(R.id.steps_detail_linear_layout) != null) {
+        if(findViewById(R.id.small_divider) != null) {
+            Log.d("TwoPane","Name " + name);
             // This LinearLayout will only initially exist in the two-pane tablet case
             mTwoPane = true;
 
             if(savedInstanceState == null) {
+                Log.d("InstanceNull","Name " + name);
                 // In two-pane mode, add initial DetailStepFragments to the screen
                 DetailStepsFragment newFragment = new DetailStepsFragment();
                 //newFragment.setImageIds(steps);

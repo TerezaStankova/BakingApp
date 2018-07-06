@@ -1,32 +1,22 @@
 package com.example.android.bakingapp.ui;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
+
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.Step;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -118,32 +108,32 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         Recipe singleRecipe = mRecipeData.get(position);
 
         Timber.d("recipe %s", singleRecipe.getName());
-        recipeAdapterViewHolder.mTitleTextView.setText(singleRecipe.getName());
+        recipeAdapterViewHolder.mTitleTextView.setText(singleRecipe.getName().toUpperCase());
         recipeAdapterViewHolder.mServingsTextView.setText(singleRecipe.getServings() + " servings");
 
         ArrayList<Step> steps = singleRecipe.getSteps();
         Step lastStep = steps.get(steps.size() - 1);
         Timber.d("onBind Step" + lastStep.getVideoURL() + lastStep.getShortDescription());
 
-        Uri uri = Uri.parse(lastStep.getVideoURL() )
+        Uri uri = Uri.parse(lastStep.getVideoURL());
+
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.mipmap.ic_launcher_foreground);
+        requestOptions.error(R.mipmap.ic_launcher_foreground);
 
         if (singleRecipe.getImage().isEmpty()) {
             if (uri != null) {
                 Glide.with(recipeAdapterViewHolder.itemView.getContext())
+                        .setDefaultRequestOptions(requestOptions)
                         .load(uri)
-                        .transform(new GlideRoundTransform(mContext, 16))
-                        .thumbnail(0.1f)
-                        .placeholder(R.mipmap.ic_launcher)
-                        .error(R.mipmap.ic_launcher)
                         .into(recipeAdapterViewHolder.mPosterImageView);
 
             } else {
                 recipeAdapterViewHolder.mPosterImageView.setImageResource(R.mipmap.ic_launcher);}
         } else{
             Glide.with(recipeAdapterViewHolder.itemView.getContext())
-                    .load(lastStep.getVideoURL())
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
+                    .setDefaultRequestOptions(requestOptions)
+                    .load(singleRecipe.getImage())
                     .into(recipeAdapterViewHolder.mPosterImageView);
         }
     }

@@ -3,7 +3,11 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="poster_horizontal_margin">2dp</dimen>
-    <integer name="gallery_columns">2</integer>
+    <dimen name="image_min_height">100dp</dimen>
+    <dimen name="image_min_width">150dp</dimen>
+    <dimen name="image_max_height">200dp</dimen>
+    <dimen name="image_max_width">300dp</dimen>
+    <integer name="gallery_columns">1</integer>
 
     <!--
 Refer to App Widget Documentation for margin information

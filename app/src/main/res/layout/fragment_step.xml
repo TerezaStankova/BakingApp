@@ -11,23 +11,22 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:show_timeout="1000"
-        app:fastforward_increment="5000"
-        app:rewind_increment="50000"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:foregroundGravity="center"
-        android:minHeight="90dp"
-        android:minWidth="@dimen/exo_media_button_width"
+        android:minHeight="@dimen/image_min_height"
+        android:minWidth="@dimen/image_min_width"
+        app:fastforward_increment="5000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:resize_mode="fit"/>
+        app:rewind_increment="50000"
+        app:show_timeout="1000" />
 
     <LinearLayout
         android:id="@+id/detail_description_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -43,8 +42,7 @@
             style="@style/myPlainBlackTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/space"
-            app:layout_constraintTop_toTopOf="parent"
+            android:elegantTextHeight="true"
             tools:layout_editor_absoluteX="2dp" />
 
         <LinearLayout
@@ -55,8 +53,6 @@
             android:orientation="vertical"
             android:padding="2dp"
             android:verticalSpacing="4dp"
-            app:layout_constraintBottom_toTopOf="@+id/space"
-            app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="8dp">
 
         </LinearLayout>
