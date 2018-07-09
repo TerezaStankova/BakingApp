@@ -3,4 +3,5 @@
     <integer name="gallery_columns">2</integer>
     <dimen name="image_max_height">300dp</dimen>
     <dimen name="image_max_width">450dp</dimen>
+    <dimen name="video_max_height">300dp</dimen>
 </resources>

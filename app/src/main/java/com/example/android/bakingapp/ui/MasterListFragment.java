@@ -70,7 +70,8 @@ public class MasterListFragment extends Fragment {
         // Load the saved state (the array of trailers) if there is one
         if (savedInstanceState != null) {
            mRecipe = (Recipe) savedInstanceState.getParcelable(RECIPE);
-           mSteps = mRecipe.getSteps();
+           //mSteps = (ArrayList<Step>) savedInstanceState.getParcelableArrayListExtra(STEPS);
+            mSteps = mRecipe.getSteps();
         }
 
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container, false);
@@ -78,7 +79,7 @@ public class MasterListFragment extends Fragment {
         // Get a reference to the linear layout in the fragment layout
         //FINAL?
         final LinearLayout stepsInfoLayout = (LinearLayout) rootView.findViewById(R.id.steps_linear_layout);
-        stepsInfoLayout.removeAllViews();
+        //stepsInfoLayout.removeAllViews();
 
         View IngredientLabel = LayoutInflater.from(getActivity()).inflate(
                 R.layout.step_list_item, null);
@@ -92,14 +93,16 @@ public class MasterListFragment extends Fragment {
             }
         });
 
-        if (stepsInfoLayout != null) {
+        Log.v("Log", "Step Name: " + (stepsInfoLayout != null));
+
+
+        //if (stepsInfoLayout != null) {
             stepsInfoLayout.addView(IngredientLabel);
-        }
+        //}
 
 
         if (mSteps != null) {
 
-            int a = 1;
             for (final Step step : mSteps) {
                 if (step != null) {
                     View mStepItem = LayoutInflater.from(getActivity()).inflate(
@@ -107,9 +110,9 @@ public class MasterListFragment extends Fragment {
 
                     TextView mStepName = (TextView) mStepItem.findViewById(R.id.step_short_description);
 
-                    mStepName.setText(" " + a + ". " + step.getShortDescription());
-                    a++;
+                    mStepName.setText(" " + step.getShortDescription());
                     Timber.v("Step Name: " + step.getShortDescription());
+                    Log.v("Log", "Step Name: " + step.getShortDescription());
 
                     mStepItem.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -118,9 +121,8 @@ public class MasterListFragment extends Fragment {
                         }
                     });
 
-                    if (stepsInfoLayout != null) {
-                        stepsInfoLayout.addView(mStepItem);
-                    }
+                    stepsInfoLayout.addView(mStepItem);
+
                 }
             }
         }
@@ -134,18 +136,19 @@ public class MasterListFragment extends Fragment {
     }
 
 
-    public void setSteps(ArrayList<Step> trailers) {
-        mSteps = trailers;
-    }
+    //public void setSteps(ArrayList<Step> trailers) {
+       // mSteps = trailers;
+    //}
 
     public void setRecipe(Recipe recipe) {
         mRecipe = recipe;
+        mSteps = recipe.getSteps();
     }
 
     /*Save the current state of this fragment*/
     @Override
     public void onSaveInstanceState(Bundle currentState) {
-        currentState.putParcelableArrayList(STEPS, mSteps);
+        //currentState.putParcelableArrayListEXTRA(STEPS, mSteps);
         currentState.putParcelable(RECIPE, mRecipe);
     }
 }

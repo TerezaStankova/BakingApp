@@ -1,12 +1,18 @@
 package com.example.android.bakingapp.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.support.v4.app.Fragment;
 import android.widget.LinearLayout;
@@ -41,28 +47,34 @@ import timber.log.Timber;
 public class DetailStepsFragment extends Fragment {
 
     // Final Strings to store state information about the list of images and list index
-    public static final String IMAGE_ID_LIST = "image_ids";
     public static final String STEPS_LIST = "steps";
     public static final String INGREDIENTS_LIST = "ingredients";
     public static final String LIST_INDEX = "list_index";
+    public static final String TWOPANE = "two_pane";
+    public static final String PLAYBACK_POSITION = "playbackPosition";
+    public static final String CURRENT_WINDOW = "currentWindow";
+    public static final String PLAY_WHEN_READY = "playWhenReady";
 
     // Tag for logging
     private static final String TAG = "DetailStepsFragment";
 
-    // Variables to store a list of image resources and the index of the image that this fragment displays
-    private List<Integer> mStepIds;
+    // Variables to store a list of recipe's resources and the index of the image that this fragment displays
     private ArrayList<Step> mSteps;
     private ArrayList<Ingredient> mIngredients;
     private int mListIndex;
 
+    //Variables for VideoPlayer
     private String path;
     private SimpleExoPlayer player;
-    private PlayerView playerView;
-
+    private static PlayerView playerView;
 
     private long playbackPosition;
     private int currentWindow;
     private boolean playWhenReady;
+
+
+    //Boolean for tablet(two pane)/mobile mode
+    private boolean TwoPane;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -78,16 +90,21 @@ public class DetailStepsFragment extends Fragment {
 
         // Load the saved state (the list of images and list index) if there is one
         if (savedInstanceState != null) {
-            mStepIds = savedInstanceState.getIntegerArrayList(IMAGE_ID_LIST);
             mSteps = savedInstanceState.getParcelableArrayList(STEPS_LIST);
             mIngredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_LIST);
             mListIndex = savedInstanceState.getInt(LIST_INDEX);
+            TwoPane = savedInstanceState.getBoolean(TWOPANE);
+
+            playbackPosition = savedInstanceState.getLong(PLAYBACK_POSITION);
+            currentWindow = savedInstanceState.getInt(CURRENT_WINDOW);
+            playWhenReady = savedInstanceState.getBoolean(PLAY_WHEN_READY);
         }
 
         // Inflate the Android-Me fragment layout
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
 
         playerView = (PlayerView) rootView.findViewById(R.id.player_view);
+        //playerView.setMinimumHeight(getScreenHeightInDPs(getContext())/5);
 
         // Get a reference to the ImageView in the fragment layout
         //final ImageView imageView = (ImageView) rootView.findViewById(R.id.body_part_image_view);
@@ -159,10 +176,6 @@ public class DetailStepsFragment extends Fragment {
     // Setter methods for keeping track of the list images this fragment can display and which image
     // in the list is currently being displayed
 
-    public void setImageIds(List<Integer> stepIds) {
-        mStepIds = stepIds;
-    }
-
     public void setSteps(ArrayList<Step> steps) {
         mSteps = steps;
     }
@@ -175,34 +188,13 @@ public class DetailStepsFragment extends Fragment {
         mListIndex = index;
     }
 
+    public void setTwoPane(boolean twoPane) {TwoPane = twoPane; }
 
-    public void initializeVideoPlayer(){
-        if (path != null) {
-            player = ExoPlayerFactory.newSimpleInstance(
-                    new DefaultRenderersFactory(getContext()),
-                    new DefaultTrackSelector(), new DefaultLoadControl());
-
-            playerView.setPlayer(player);
-
-            player.setPlayWhenReady(playWhenReady);
-            player.seekTo(currentWindow, playbackPosition);
-
-            Uri uri = Uri.parse(path);
-            MediaSource mediaSource = buildMediaSource(uri);
-            player.prepare(mediaSource, true, false);
-        }
-    }
-
-    private MediaSource buildMediaSource(Uri uri) {
-        return new ExtractorMediaSource.Factory(
-                new DefaultHttpDataSourceFactory("exoplayer-bakingapp")).
-                createMediaSource(uri);
-    }
 
     public void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView){
+        playerView.setVisibility(View.GONE);
 
         if (mSteps != null){
-            playerView.setVisibility(View.GONE);
             /*
             DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
             String path = mSteps.get(mListIndex -1).getVideoURL();
@@ -215,20 +207,26 @@ public class DetailStepsFragment extends Fragment {
             //Check if there is a video resource URL
             path = mSteps.get(mListIndex -1).getVideoURL();
 
+            longDescriptionView.setText(mSteps.get(mListIndex -1).getDescription());
+            longDescriptionView.setVisibility(View.VISIBLE);
+            ingredientsInfoLayout.setVisibility(View.GONE);
+            previousButtonView.setVisibility(View.VISIBLE);
+
             if (path.length() > 8){
 
                 Log.d("URL", "URL substring: " + path.substring(path.length()-4) + path.length());
                 if(path.substring(path.length()-4).equals(".mp4")){
                     Log.d("URL for video2", "URL" + path);
                     Timber.d(path);
-                    initializeVideoPlayer();
-                    playerView.setVisibility(View.VISIBLE);}
-            }
+                    Log.d("Log", "path" + path);
+                    initializeVideoPlayer();}
 
-            longDescriptionView.setText(mSteps.get(mListIndex -1).getDescription());
-            longDescriptionView.setVisibility(View.VISIBLE);
-            ingredientsInfoLayout.setVisibility(View.GONE);
-            previousButtonView.setVisibility(View.VISIBLE);
+                int orientation = this.getResources().getConfiguration().orientation;
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    hideSystemUi();
+                } else
+                {showSystemUI();}
+            }
 
         if (mListIndex == mSteps.size()) {
             nextButtonView.setVisibility(View.INVISIBLE);
@@ -243,8 +241,9 @@ public class DetailStepsFragment extends Fragment {
     }
 
     public void setIngredientsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
-        longDescriptionView.setVisibility(View.GONE);
         playerView.setVisibility(View.GONE);
+        longDescriptionView.setVisibility(View.GONE);
+
         ingredientsInfoLayout.setVisibility(View.VISIBLE);
         previousButtonView.setVisibility(View.INVISIBLE);
         int childCount = ingredientsInfoLayout.getChildCount();
@@ -277,54 +276,93 @@ public class DetailStepsFragment extends Fragment {
     }
     }
 
-    /**
-     * Save the current state of this fragment
-     */
-    @Override
-    public void onSaveInstanceState(Bundle currentState) {
-        currentState.putIntegerArrayList(IMAGE_ID_LIST, (ArrayList<Integer>) mStepIds);
-        currentState.putParcelableArrayList(STEPS_LIST, (ArrayList<Step>) mSteps);
-        currentState.putParcelableArrayList(INGREDIENTS_LIST, (ArrayList<Ingredient>) mIngredients);
-        currentState.putInt(LIST_INDEX, mListIndex);
+    public void initializeVideoPlayer(){
+        if (path != null) {
+            player = ExoPlayerFactory.newSimpleInstance(
+                    new DefaultRenderersFactory(getContext()),
+                    new DefaultTrackSelector(), new DefaultLoadControl());
+
+            playerView.setPlayer(player);
+            Log.d("OnStart", "is " + playbackPosition);
+            player.setPlayWhenReady(playWhenReady);
+
+
+            Uri uri = Uri.parse(path);
+            MediaSource mediaSource = buildMediaSource(uri);
+            player.prepare(mediaSource, true, true);
+            player.seekTo(currentWindow, playbackPosition);
+            playerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private MediaSource buildMediaSource(Uri uri) {
+        return new ExtractorMediaSource.Factory(
+                new DefaultHttpDataSourceFactory("BakingApp")).
+                createMediaSource(uri);
+    }
+
+
+    /*@SuppressLint("InlinedApi")
+    private void hideSystemUi() {
+        if (TwoPane == false) {
+            playerView.setSystemUiVisibility(
+                    // Set the content to appear under the system bars so that the
+                    // content doesn't resize when the system bars hide and show.
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            // Hide the nav bar and status bar
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+    }*/
+
+
+    @SuppressLint("InlinedApi")
+    private void hideSystemUi() {
+        if (TwoPane == false) {
+        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }}
+
+    // Shows the system bars by removing all the flags
+// except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        if (TwoPane == false) {
+            playerView.setSystemUiVisibility(0);
+            //View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            //   | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            // | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
         if (Util.SDK_INT > 23) {
+            if (player != null) {
+            Log.d("OnStart", "is " + playbackPosition + player.getCurrentPosition());}
             initializeVideoPlayer();
         }
     }
 
-    @SuppressLint("InlinedApi")
-    private void hideSystemUi() {
-        playerView.setSystemUiVisibility(
-                // Set the content to appear under the system bars so that the
-                // content doesn't resize when the system bars hide and show.
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                // Hide the nav bar and status bar
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        playerView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-
-
     @Override
     public void onResume() {
         super.onResume();
-        hideSystemUi();
+
+        int orientation = this.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            hideSystemUi();
+        } else
+        {showSystemUI();}
         if ((Util.SDK_INT <= 23 || player == null)) {
+            if (player != null) {
+            Log.d("OnResume", "is " + playbackPosition + player.getCurrentPosition());}
             initializeVideoPlayer();
         }
     }
@@ -332,7 +370,10 @@ public class DetailStepsFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        showSystemUI();
         if (Util.SDK_INT <= 23) {
+            Log.d("OnPause", "is " + playbackPosition + player.getCurrentPosition());
             releasePlayer();
         }
     }
@@ -340,24 +381,83 @@ public class DetailStepsFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+
+        showSystemUI();
         if (Util.SDK_INT > 23) {
+            if (player != null) {
+            Log.d("OnStop", "is " + player.getCurrentPosition());}
             releasePlayer();
         }
     }
 
-    @Override
+   /* @Override
     public void onDestroy() {
         super.onDestroy();
         releasePlayer();
-    }
+    }*/
 
     private void releasePlayer() {
         if (player != null) {
             playbackPosition = player.getCurrentPosition();
+            if (player != null) {
+            Log.d("OnCurrentRelease", "is " + player.getCurrentPosition());}
             currentWindow = player.getCurrentWindowIndex();
             playWhenReady = player.getPlayWhenReady();
             player.release();
             player = null;
         }
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (TwoPane == false) {
+
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                hideSystemUi();
+                Log.e("On Config Change", "LANDSCAPE");
+            } else {
+                Log.e("On Config Change", "PORTRAIT");
+                showSystemUI();
+            }
+        }
+    }
+    /**
+     * Save the current state of this fragment
+     */
+    @Override
+    public void onSaveInstanceState(Bundle currentState) {
+        currentState.putParcelableArrayList(STEPS_LIST, (ArrayList<Step>) mSteps);
+        currentState.putParcelableArrayList(INGREDIENTS_LIST, (ArrayList<Ingredient>) mIngredients);
+        currentState.putInt(LIST_INDEX, mListIndex);
+        currentState.putBoolean(TWOPANE, TwoPane);
+        if (player != null) {
+        currentState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
+        currentState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());
+        currentState.putLong(PLAYBACK_POSITION, player.getCurrentPosition());
+        Log.d("OnSave", "is " + player.getCurrentPosition());}
+    }
+
+    /*
+    public static int getScreenHeightInDPs(Context context){
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        /*
+            In this example code we converted the float value
+            to nearest whole integer number. But, you can get the actual height in dp
+            by removing the Math.round method. Then, it will return a float value, you should
+            also make the necessary changes.
+        */
+
+        /*
+            public int heightPixels
+                The absolute height of the display in pixels.
+
+            public float density
+             The logical density of the display.
+        */
+        /*int heightInDP = Math.round(dm.heightPixels / dm.density);
+        return heightInDP;
+    }*/
 }

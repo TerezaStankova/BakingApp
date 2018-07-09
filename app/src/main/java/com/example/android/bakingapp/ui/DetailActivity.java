@@ -24,10 +24,12 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     private String name;
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private ArrayList<Step> steps = new ArrayList<>();
+    private Recipe recipe;
 
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     private boolean mTwoPane;
+    private String RECIPE = "recipe";
 
 
     @Override
@@ -35,7 +37,13 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        Recipe recipe = (Recipe) getIntent().getParcelableExtra("parcel_data");
+        if (savedInstanceState == null){
+            recipe = (Recipe) getIntent().getParcelableExtra("parcel_data");
+        }
+
+        if (savedInstanceState != null) {
+            recipe = savedInstanceState.getParcelable(RECIPE);
+        }
 
         if (recipe == null) {
             // Recipe data unavailable
@@ -43,12 +51,33 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             return;
         }
 
+        steps = recipe.getSteps();
         //Set recipe´s info
         name = recipe.getName();
         ingredients = recipe.getIngredients();
         steps = recipe.getSteps();
         setTitle(name);
         Log.d("Name ", "onCreateDetailActivity" + name);
+
+
+        if (savedInstanceState == null) {
+            if (steps != null) {
+                // Create a new MasterListFragment
+                MasterListFragment masterListFragment = new MasterListFragment();
+                //masterListFragment.setSteps(steps);
+                masterListFragment.setRecipe(recipe);
+                // Add the fragment to its container using a FragmentManager and a Transaction
+                FragmentManager fragmentManager = getSupportFragmentManager();
+
+                fragmentManager.beginTransaction()
+                        .add(R.id.master_list_container, masterListFragment)
+                        .commit();
+            } else {
+                // Steps data unavailable
+                closeOnError();
+                return;
+            }
+        }
 
         // Determine if you're creating a two-pane or single-pane display
         if(findViewById(R.id.small_divider) != null) {
@@ -64,6 +93,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
                 newFragment.setSteps(steps);
                 newFragment.setIngredients(ingredients);
                 newFragment.setListIndex(0);
+                newFragment.setTwoPane(mTwoPane);
                 // Replace the old head fragment with a new one
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.detail_description_container, newFragment)
@@ -73,10 +103,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             // We're in single-pane mode and displaying fragments on a phone in separate activities
             mTwoPane = false;
         }
-
-
-
-
     }
 
     private void closeOnError() {
@@ -88,10 +114,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     // Define the behavior for onItemSelected
     public void onItemSelected(int position) {
         // Create a Toast that displays the position that was clicked
-        Toast.makeText(this, "Position clicked = " + position, Toast.LENGTH_SHORT).show();
-
-        // Store the correct list index no matter where in the image list has been clicked
-        // This ensures that the index will always be a value between 0-11
+        //Toast.makeText(this, "Position clicked = " + position, Toast.LENGTH_SHORT).show();
 
         // Handle the two-pane case and replace existing fragments right when a new image is selected from the master list
         if (mTwoPane) {
@@ -101,6 +124,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             //newFragment.setImageIds(steps);
             newFragment.setSteps(steps);
             newFragment.setIngredients(ingredients);
+            newFragment.setTwoPane(mTwoPane);
             newFragment.setListIndex(position);
             // Replace the old head fragment with a new one
             getSupportFragmentManager().beginTransaction()
@@ -114,7 +138,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             Bundle b = new Bundle();
             b.putInt("stepIndex", position);
             Timber.e("clicked");
-            Log.d("clicked", "nextButtonClicked" + position);
+            Log.d("clicked", "nextStepClicked" + position);
             b.putParcelableArrayList("steps", steps);
             b.putParcelableArrayList("ingredients", ingredients);
 
@@ -321,5 +345,6 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     {
         super.onSaveInstanceState(savedInstanceState);
         //savedInstanceState.putBoolean(IS_FAVOURITE, isFavourite);
+        savedInstanceState.putParcelable(RECIPE, recipe);
     }
 }

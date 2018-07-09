@@ -34,6 +34,7 @@ public class StepsDetailActivity extends AppCompatActivity {
             Log.d("StepsDetail", "step1: " + steps.get(steps.size()-1).getShortDescription());
 
             DetailStepsFragment newFragment = new DetailStepsFragment();
+            newFragment.setTwoPane(false);
             //newFragment.setImageIds(steps);
             newFragment.setListIndex(listIndex);
             newFragment.setSteps(steps);
