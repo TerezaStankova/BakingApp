@@ -66,7 +66,10 @@ public class DetailStepsFragment extends Fragment {
     //Variables for VideoPlayer
     private String path;
     private SimpleExoPlayer player;
-    private static PlayerView playerView;
+    private PlayerView playerView;
+
+    private LinearLayout buttonsLayout;
+    private LinearLayout textLayout;
 
     private long playbackPosition;
     private int currentWindow;
@@ -108,6 +111,9 @@ public class DetailStepsFragment extends Fragment {
 
         // Get a reference to the ImageView in the fragment layout
         //final ImageView imageView = (ImageView) rootView.findViewById(R.id.body_part_image_view);
+        textLayout = (LinearLayout) rootView.findViewById(R.id.detail_description_layout);
+        buttonsLayout = (LinearLayout) rootView.findViewById(R.id.buttons_layout);
+
 
         // Get a reference to the ImageView in the fragment layout
         final TextView longDescriptionView = (TextView) rootView.findViewById(R.id.step_long_description);
@@ -136,7 +142,7 @@ public class DetailStepsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Increment position as long as the index remains <= the size of the steps list
-                if (mListIndex < mSteps.size()) {
+                if (mListIndex < (mSteps.size())) {
                     mListIndex++;
                 }
                 // Set the image resource to the new list item
@@ -193,6 +199,7 @@ public class DetailStepsFragment extends Fragment {
 
     public void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView){
         playerView.setVisibility(View.GONE);
+        ingredientsInfoLayout.setVisibility(View.GONE);
 
         if (mSteps != null){
             /*
@@ -205,11 +212,11 @@ public class DetailStepsFragment extends Fragment {
             player.setPlayWhenReady(true);*/
 
             //Check if there is a video resource URL
-            path = mSteps.get(mListIndex -1).getVideoURL();
+            path = mSteps.get(mListIndex - 1).getVideoURL();
+
 
             longDescriptionView.setText(mSteps.get(mListIndex -1).getDescription());
             longDescriptionView.setVisibility(View.VISIBLE);
-            ingredientsInfoLayout.setVisibility(View.GONE);
             previousButtonView.setVisibility(View.VISIBLE);
 
             if (path.length() > 8){
@@ -220,12 +227,15 @@ public class DetailStepsFragment extends Fragment {
                     Timber.d(path);
                     Log.d("Log", "path" + path);
                     initializeVideoPlayer();}
+            } else {
+                if (TwoPane == false){
+                    int orientation = this.getResources().getConfiguration().orientation;
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
-                int orientation = this.getResources().getConfiguration().orientation;
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    hideSystemUi();
-                } else
-                {showSystemUI();}
+                textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                textLayout.setVisibility(View.VISIBLE);
+                }}
             }
 
         if (mListIndex == mSteps.size()) {
@@ -236,6 +246,8 @@ public class DetailStepsFragment extends Fragment {
 
         } else {
             Log.v(TAG, "This fragment has a null list of steps");
+            longDescriptionView.setText("No steps available");
+            longDescriptionView.setVisibility(View.VISIBLE);
         }
 
     }
@@ -243,9 +255,14 @@ public class DetailStepsFragment extends Fragment {
     public void setIngredientsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
         playerView.setVisibility(View.GONE);
         longDescriptionView.setVisibility(View.GONE);
-
-        ingredientsInfoLayout.setVisibility(View.VISIBLE);
         previousButtonView.setVisibility(View.INVISIBLE);
+        if (TwoPane == false) {
+            int orientation = this.getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            textLayout.setVisibility(View.VISIBLE);}
+       }
+        ingredientsInfoLayout.setVisibility(View.VISIBLE);
         int childCount = ingredientsInfoLayout.getChildCount();
 
         if (childCount < 2) {
@@ -291,6 +308,14 @@ public class DetailStepsFragment extends Fragment {
             MediaSource mediaSource = buildMediaSource(uri);
             player.prepare(mediaSource, true, true);
             player.seekTo(currentWindow, playbackPosition);
+
+
+            if (TwoPane == false) {
+            int orientation = this.getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                hideSystemUi();
+            }}
+
             playerView.setVisibility(View.VISIBLE);
         }
     }
@@ -321,22 +346,44 @@ public class DetailStepsFragment extends Fragment {
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
         if (TwoPane == false) {
-        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
+            textLayout.setVisibility(View.GONE);
+            //buttonsLayout.setVisibility(View.GONE);
+
+        playerView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LOW_PROFILE|
+                View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-    }}
+
+            float scale1 = getContext().getResources().getDisplayMetrics().widthPixels;
+            int scale2 = getActivity().getResources().getDisplayMetrics().widthPixels;
+            int scale3 = getContext().getResources().getDisplayMetrics().heightPixels;
+            playerView.setPadding(0,0,0,0);
+
+            //The minimum height of buttons, in pixels
+            int heightButtonsMin = buttonsLayout.getMinimumHeight();
+
+
+            Log.d("OnHide", "is " + heightButtonsMin + scale1 +"is "+ scale3 +"is "+ scale2);
+
+
+            //The minimum height the view will try to be, in pixels
+            playerView.setMinimumHeight(scale3 - heightButtonsMin);
+            playerView.setMinimumWidth(scale2);
+        }}
 
     // Shows the system bars by removing all the flags
 // except for the ones that make the content appear under the system bars.
     private void showSystemUI() {
         if (TwoPane == false) {
-            playerView.setSystemUiVisibility(0);
-            //View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            //   | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            // | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            //buttonsLayout.setVisibility(View.VISIBLE);
+            textLayout.setVisibility(View.VISIBLE);
+
+            playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
     }
 
@@ -347,23 +394,17 @@ public class DetailStepsFragment extends Fragment {
         if (Util.SDK_INT > 23) {
             if (player != null) {
             Log.d("OnStart", "is " + playbackPosition + player.getCurrentPosition());}
-            initializeVideoPlayer();
+            //initializeVideoPlayer();
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        int orientation = this.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            hideSystemUi();
-        } else
-        {showSystemUI();}
         if ((Util.SDK_INT <= 23 || player == null)) {
             if (player != null) {
             Log.d("OnResume", "is " + playbackPosition + player.getCurrentPosition());}
-            initializeVideoPlayer();
+            //initializeVideoPlayer();
         }
     }
 
@@ -371,7 +412,7 @@ public class DetailStepsFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        showSystemUI();
+        //showSystemUI();
         if (Util.SDK_INT <= 23) {
             Log.d("OnPause", "is " + playbackPosition + player.getCurrentPosition());
             releasePlayer();
@@ -382,7 +423,7 @@ public class DetailStepsFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        showSystemUI();
+        //showSystemUI();
         if (Util.SDK_INT > 23) {
             if (player != null) {
             Log.d("OnStop", "is " + player.getCurrentPosition());}
@@ -399,16 +440,16 @@ public class DetailStepsFragment extends Fragment {
     private void releasePlayer() {
         if (player != null) {
             playbackPosition = player.getCurrentPosition();
-            if (player != null) {
-            Log.d("OnCurrentRelease", "is " + player.getCurrentPosition());}
+            Log.d("OnCurrentRelease", "is " + player.getCurrentPosition());
             currentWindow = player.getCurrentWindowIndex();
             playWhenReady = player.getPlayWhenReady();
             player.release();
             player = null;
+            //showSystemUI();
         }
     }
 
-    @Override
+    /*@Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (TwoPane == false) {
@@ -421,7 +462,7 @@ public class DetailStepsFragment extends Fragment {
                 showSystemUI();
             }
         }
-    }
+    }*/
     /**
      * Save the current state of this fragment
      */

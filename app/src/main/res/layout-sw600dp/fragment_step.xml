@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="8dp">
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/activity_horizontal_margin">
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/player_view"
+        app:controller_layout_id="@layout/custom_playback_control"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/video_height_two_pane"
+        android:layout_height="300dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:foregroundGravity="center_horizontal"
+        android:maxHeight="@dimen/video_max_height"
+        android:minHeight="@dimen/image_min_height"
+        android:minWidth="@dimen/image_min_width"
         android:padding="2dp"
-        app:controller_layout_id="@layout/custom_playback_control"
         app:fastforward_increment="5000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,26 +27,21 @@
         app:rewind_increment="50000"
         app:show_timeout="3000" />
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/detail_description_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:minHeight="109dp"
+        android:minHeight="24dp"
         android:orientation="vertical"
         android:padding="2dp"
         app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_view">
-
-    <LinearLayout
-        android:id="@+id/detail_description_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="2dp">
 
         <TextView
             android:id="@+id/step_long_description"
@@ -65,13 +64,13 @@
         </LinearLayout>
     </LinearLayout>
 
-    </ScrollView>
-
     <LinearLayout
         android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:maxHeight="100dp"
         android:minHeight="24dp"
         android:orientation="horizontal"

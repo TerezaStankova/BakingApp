@@ -24,16 +24,9 @@
             android:id="@+id/appwidget_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Baking App"
+            android:text="Find new recipe"
             style="@style/myWhiteTitleTextStyle"
             android:layout_margin="8dp"/>
-
-        <TextView
-            android:id="@+id/ingredients_label_widget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredients"
-            style="@style/myWhiteTitleTextStyle" />
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"

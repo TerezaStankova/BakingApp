@@ -26,8 +26,12 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
         Log.v("widget Updated", "This name" + name);
         //CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
+        String title;
+        if (name != null) {
+        title = context.getString(R.string.ingredients_for) + name;} else
+        { title = context.getString(R.string.find_new_recipe);}
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget_provider);
-        views.setTextViewText(R.id.appwidget_text, name);
+        views.setTextViewText(R.id.appwidget_text, title);
 
         if (mIngredients != null) {
             views.removeAllViews (R.id.ingredients_widget_linear_layout);
@@ -58,7 +62,7 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         //Widgets allow click handlers to only launch pending intents
-        views.setOnClickPendingIntent(R.id.ingredients_linear_layout, pendingIntent);
+        views.setOnClickPendingIntent(R.id.appwidget_text, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

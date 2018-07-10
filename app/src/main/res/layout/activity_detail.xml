@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+    <!--
+       This layout is a single-pane layout for the master/detail flow.
+       -->
+    <!-- Display the master list fragment -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_weight="300">
 
-<!-- Display the master list fragment -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/master_list_container"
+<LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="2dp">
 
+    <!-- Display the master list fragment -->
+    <FrameLayout
+        android:id="@+id/master_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>
+
+</ScrollView>

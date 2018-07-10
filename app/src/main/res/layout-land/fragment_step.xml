@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+
+    <ScrollView
+        android:id="@+id/scroll"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttons_layout"
+        android:layout_marginEnd="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/player_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="0dp"
+                android:foregroundGravity="fill"
+                android:minHeight="100dp"
+                app:controller_layout_id="@layout/custom_playback_control"
+                app:fastforward_increment="5000"
+                app:resize_mode="fit"
+                app:rewind_increment="50000"
+                app:show_timeout="3000" />
+
+    <LinearLayout
+        android:id="@+id/detail_description_layout"
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="109dp"
+        android:orientation="vertical"
+        android:padding="2dp">
+
+        <TextView
+            android:id="@+id/step_long_description"
+            style="@style/myPlainBlackTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elegantTextHeight="true" />
+
+        <LinearLayout
+            android:id="@+id/ingredients_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="2dp"
+            android:verticalSpacing="4dp">
+
+        </LinearLayout>
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:maxHeight="100dp"
+            android:minHeight="32dp"
+            android:orientation="horizontal">
+
+
+            <Button
+                android:id="@+id/previous_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@color/colorAccentDark"
+                android:minHeight="20dp"
+                android:minLines="1"
+                android:minWidth="15dp"
+                android:padding="4dp"
+                android:text="@string/previous"
+                android:textColor="@color/TextOnDark"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/next_button2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@color/colorAccentDark"
+                android:minHeight="20dp"
+                android:minLines="1"
+                android:minWidth="15dp"
+                android:padding="4dp"
+                android:text="@string/next"
+                android:textColor="@color/TextOnDark"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>
+

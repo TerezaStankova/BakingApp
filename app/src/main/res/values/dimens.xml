@@ -7,6 +7,7 @@
     <dimen name="image_min_width">150dp</dimen>
     <dimen name="image_max_height">200dp</dimen>
     <dimen name="video_max_height">250dp</dimen>
+    <dimen name="video_height_two_pane">75dp</dimen>
     <dimen name="image_max_width">300dp</dimen>
     <integer name="gallery_columns">1</integer>
 

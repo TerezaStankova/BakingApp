@@ -6,12 +6,18 @@
     <string name="detail_error_message">Recipe data not available</string>
     <string name="error_message">Data not available. Check your Internet connection.</string>
 
+    <!-- Text Views-->
     <string name="food_description">Image of food from the recipe</string>
-    <string name="appwidget_text">EXAMPLE</string>
-    <string name="add_widget">Add widget</string>
+    <string name="ingredients">Ingredients:</string>
+
+    <!-- Buttons -->
     <string name="previous">Previous</string>
     <string name="next">Next</string>
-    <string name="ingredients">Ingredients:</string>
+
+    <!-- Widget -->
+    <string name="add_widget">Add widget</string>
+    <string name="find_new_recipe">Find new recipe</string>
+    <string name="ingredients_for">Ingredients for </string>
 
 </resources>
 

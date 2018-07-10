@@ -24,7 +24,7 @@
 
     <style name="myPlainBlackTextStyle" parent="TextAppearance.AppCompat.Title">
         <item name="android:textColor">@color/TextOnLight</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="myWhiteTitleTextStyle" parent="TextAppearance.AppCompat.Title">

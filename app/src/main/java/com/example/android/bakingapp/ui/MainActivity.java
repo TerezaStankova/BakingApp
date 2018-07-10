@@ -36,18 +36,14 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     private RecyclerView mRecyclerView;
     private RecipeAdapter mRecipeAdapter;
     private TextView mErrorMessageDisplay;
-    private ProgressBar mLoadingIndicator;
+    public ProgressBar mLoadingIndicator;
     private ArrayList<Recipe> mRecipes = new ArrayList();
     private GridLayoutManager layoutManager;
     private Parcelable mListState;
 
     // Final String to store state information about the movies
     private static final String RECIPES = "recipes";
-
     private static final String LIST_STATE_KEY = "list_state";
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +61,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
             /* This TextView is used to display errors and will be hidden if there are no errors */
             mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
 
-            //final int columns = getResources().getInteger(R.integer.gallery_columns);
-
-            final int columns = 2;
+            final int columns = getResources().getInteger(R.integer.gallery_columns);
 
             layoutManager = new GridLayoutManager(this, columns, GridLayoutManager.VERTICAL, false);
 
