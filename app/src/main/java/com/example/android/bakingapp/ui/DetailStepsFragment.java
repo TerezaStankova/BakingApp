@@ -1,7 +1,10 @@
 package com.example.android.bakingapp.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +39,8 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class DetailStepsFragment extends Fragment {
@@ -58,10 +63,6 @@ public class DetailStepsFragment extends Fragment {
     //Variables for VideoPlayer
     private String path;
     private SimpleExoPlayer player;
-    private PlayerView playerView;
-
-    private LinearLayout buttonsLayout;
-    private LinearLayout textLayout;
 
     private long playbackPosition;
     private int currentWindow;
@@ -70,6 +71,16 @@ public class DetailStepsFragment extends Fragment {
 
     //Boolean for tablet(two pane)/mobile mode
     private boolean TwoPane;
+
+    // Get a reference to the nextButton in the fragment layout
+    @BindView(R.id.next_button2) Button nextButtonView;
+    @BindView(R.id.previous_button) Button previousButtonView;
+    @BindView(R.id.detail_description_layout) LinearLayout textLayout;
+    @BindView(R.id.buttons_layout) LinearLayout buttonsLayout;
+    @BindView(R.id.ingredients_linear_layout) LinearLayout ingredientsInfoLayout;
+    @BindView(R.id.step_long_description) TextView longDescriptionView;
+
+    @BindView(R.id.player_view) PlayerView playerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -98,27 +109,10 @@ public class DetailStepsFragment extends Fragment {
         // Inflate the step fragment layout
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
 
-        playerView = (PlayerView) rootView.findViewById(R.id.player_view);
-
         // Get a reference to the views in the fragment layout
-        textLayout = (LinearLayout) rootView.findViewById(R.id.detail_description_layout);
-        buttonsLayout = (LinearLayout) rootView.findViewById(R.id.buttons_layout);
-
-        // Get a reference to the view for description of step in the fragment layout
-        final TextView longDescriptionView = (TextView) rootView.findViewById(R.id.step_long_description);
-
-        // Get a reference to the view for ingredients in the fragment layout
-        final LinearLayout ingredientsInfoLayout = (LinearLayout) rootView.findViewById(R.id.ingredients_linear_layout);
-
-
-        // Get a reference to the nextButton in the fragment layout
-        final Button nextButtonView = (Button) rootView.findViewById(R.id.next_button2);
-
-        // Get a reference to the previousButton in the fragment layout
-        final Button previousButtonView = (Button) rootView.findViewById(R.id.previous_button);
+        ButterKnife.bind(this, rootView);
 
         // Show ingredient if first option was selected or nothing was selected
-
         if (mListIndex == 0) {
             setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
 
@@ -129,175 +123,206 @@ public class DetailStepsFragment extends Fragment {
 
         }
 
-        if (mSteps != null){
-        // Set a click listener on the next button
-        nextButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Increment position as long as the index remains < the size of the steps list
-                if (mListIndex < (mSteps.size())) {
-                    mListIndex++;
+        if (mSteps != null) {
+            // Set a click listener on the next button
+            nextButtonView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Increment position as long as the index remains < the size of the steps list
+                    if (mListIndex < (mSteps.size())) {
+                        mListIndex++;
+                    }
+                    // Set the view accordingly to the next item
+                    if (mListIndex == 0) {
+                        setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
+                    } else {
+                        setStepsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
+                    }
                 }
-                // Set the view accordingly to the next item
-                if (mListIndex == 0) {
-                    setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
-                }
-                else{
-                    setStepsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
-                }
-            }
-        });
+            });
 
-        // Set a click listener on the previous button
-        previousButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Increment position as long as the index remains <= the size of the image ids list
-                if (mListIndex > 0) {
-                    mListIndex--;
+            // Set a click listener on the previous button
+            previousButtonView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Increment position as long as the index remains <= the size of the image ids list
+                    if (mListIndex > 0) {
+                        mListIndex--;
+                    }
+                    // Set the view accordingly to the previous item
+                    if (mListIndex == 0) {
+                        setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
+                    } else {
+                        setStepsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
+                    }
                 }
-                // Set the view accordingly to the previous item
-                if (mListIndex == 0) {
-                    setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
-                }
-                else{
-                    setStepsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);}
-            }
-        });
+            });
         }
 
-            // Return the rootView
-            return rootView;
-        }
-
+        // Return the rootView
+        return rootView;
+    }
 
 
     // Setter methods for keeping track of the steps and ingredients of current recipe
-
     public void setSteps(ArrayList<Step> steps) {
         mSteps = steps;
     }
+
     public void setIngredients(ArrayList<Ingredient> ingredients) {
         mIngredients = ingredients;
     }
+
     public void setListIndex(int index) {
         mListIndex = index;
     }
 
     // Setter method for keeping track of type of the device (mobile/tablet mode)
-    public void setTwoPane(boolean twoPane) {TwoPane = twoPane; }
+    public void setTwoPane(boolean twoPane) {
+        TwoPane = twoPane;
+    }
 
 
-    public void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView){
+    public void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
         playerView.setVisibility(View.GONE);
         ingredientsInfoLayout.setVisibility(View.GONE);
 
-        if (mSteps != null){
+        if (mSteps != null) {
             //Check if there is a video resource URL
             path = mSteps.get(mListIndex - 1).getVideoURL();
 
             //Set detail description of the selected step
-            longDescriptionView.setText(mSteps.get(mListIndex -1).getDescription());
+            longDescriptionView.setText(mSteps.get(mListIndex - 1).getDescription());
             longDescriptionView.setVisibility(View.VISIBLE);
 
             //Set visibility of previous button
             previousButtonView.setVisibility(View.VISIBLE);
 
-            //If the video URL exists and ends with ".mp4", initialize the video player
-            if (path.length() > 8){
-                Timber.d("URL substring: " + path.substring(path.length() - 4) + path.length());
-                if(path.substring(path.length()-4).equals(".mp4")){
+            //If the video URL exists, ends with ".mp4" and the device is connected to Internet, initialize the video player
+            if (path.length() > 8 && isConnected()) {
+                Timber.d("URL substring: " + path.substring(path.length() - 4));
+                if (path.substring(path.length() - 4).equals(".mp4")) {
                     Timber.d(path);
-                    initializeVideoPlayer();}
+                    initializeVideoPlayer();
+                }
             } else {
-                if (TwoPane == false){
+                if (TwoPane == false) {
                     int orientation = this.getResources().getConfiguration().orientation;
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-                textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-                textLayout.setVisibility(View.VISIBLE);
-                }}
+                        // Set detail description to be visible and hide unnecessary UI if there is no video to show (phone, landscape)
+                        textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                        textLayout.setVisibility(View.VISIBLE);
+                    }
+                }
             }
 
-        if (mListIndex == mSteps.size()) {
-            nextButtonView.setVisibility(View.INVISIBLE);
-        } else {
-            nextButtonView.setVisibility(View.VISIBLE);
-        }
+            //Set nextButton invisible if this is the last step
+            if (mListIndex == mSteps.size()) {
+                nextButtonView.setVisibility(View.INVISIBLE);
+            } else {
+                nextButtonView.setVisibility(View.VISIBLE);
+            }
 
         } else {
-            Timber.v("This fragment has a null list of steps");
-            longDescriptionView.setText("No steps available");
-            longDescriptionView.setVisibility(View.VISIBLE);
+            Timber.d("This fragment has a null list of steps");
         }
 
     }
 
     public void setIngredientsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
+
+        //Hide playerView, previousButton and view for step description
         playerView.setVisibility(View.GONE);
         longDescriptionView.setVisibility(View.GONE);
         previousButtonView.setVisibility(View.INVISIBLE);
+
+        // Set Layout for ingredients to be visible and hide unnecessary UI if there is no video to show (phone, landscape)
         if (TwoPane == false) {
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-            textLayout.setVisibility(View.VISIBLE);}
-       }
+                textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                textLayout.setVisibility(View.VISIBLE);
+            }
+        }
+
         ingredientsInfoLayout.setVisibility(View.VISIBLE);
+
+        //Check if there are already ingredients listed
         int childCount = ingredientsInfoLayout.getChildCount();
 
         if (childCount < 2) {
+            if (mIngredients != null) {
+                int a = 1;
+                for (final Ingredient ingredient : mIngredients) {
+                    if (ingredient != null) {
 
-        if (mIngredients != null) {
-            int a = 1;
-            for (final Ingredient ingredient : mIngredients) {
-                if (ingredient != null) {
+                        View mIngredientItem = LayoutInflater.from(getActivity()).inflate(
+                                R.layout.ingredient_list_item, null);
 
-                    View mIngredientItem = LayoutInflater.from(getActivity()).inflate(
-                            R.layout.ingredient_list_item, null);
+                        TextView mIngredientName = (TextView) mIngredientItem.findViewById(R.id.ingredient_name);
+                        Double quantityDouble = ingredient.getQuantity();
+                        mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
+                                + " " + ingredient.getMeasure().toLowerCase());
 
-                    TextView mIngredientName = (TextView) mIngredientItem.findViewById(R.id.ingredient_name);
-                    Double quantityDouble = ingredient.getQuantity();
-                    mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
-                            + " " + ingredient.getMeasure().toLowerCase());
+                        Timber.d("Quantity: " + String.valueOf((ingredient.getQuantity())));
 
-                    Timber.d("Quantity: " + String.valueOf((ingredient.getQuantity())));
-
-                    ingredientsInfoLayout.addView(mIngredientItem);
-                    a++;
+                        ingredientsInfoLayout.addView(mIngredientItem);
+                        a++;
+                    }
                 }
+            } else {
+                Timber.d("This fragment has a null list of ingredients");
             }
-        } else {
-            Timber.d("This fragment has a null list of ingredients");
         }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
     }
 
-    public void initializeVideoPlayer(){
-        if (path != null) {
-            player = ExoPlayerFactory.newSimpleInstance(
-                    new DefaultRenderersFactory(getContext()),
-                    new DefaultTrackSelector(), new DefaultLoadControl());
+    @Override
+    public void onStop() {
+        super.onStop();
 
-            playerView.setPlayer(player);
-            Log.d("OnStart", "is " + playbackPosition);
-            player.setPlayWhenReady(playWhenReady);
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+    public void initializeVideoPlayer() {
+        if (path != null && isConnected()) {
+            try {
+                player = ExoPlayerFactory.newSimpleInstance(
+                        new DefaultRenderersFactory(getContext()),
+                        new DefaultTrackSelector(), new DefaultLoadControl());
+
+                playerView.setPlayer(player);
+                player.setPlayWhenReady(playWhenReady);
+
+                Uri uri = Uri.parse(path);
+                MediaSource mediaSource = buildMediaSource(uri);
+                player.prepare(mediaSource, true, true);
+                player.seekTo(currentWindow, playbackPosition);
 
 
-            Uri uri = Uri.parse(path);
-            MediaSource mediaSource = buildMediaSource(uri);
-            player.prepare(mediaSource, true, true);
-            player.seekTo(currentWindow, playbackPosition);
+                // Hide unnecessary UI if there is a video to show (phone, landscape)
+                if (TwoPane == false) {
+                    int orientation = this.getResources().getConfiguration().orientation;
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        hideSystemUi();
+                    }
+                }
 
-
-            if (TwoPane == false) {
-            int orientation = this.getResources().getConfiguration().orientation;
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                hideSystemUi();
-            }}
-
-            playerView.setVisibility(View.VISIBLE);
+                playerView.setVisibility(View.VISIBLE);
+            } catch (Exception e) {
+                Timber.d("Error with Media Player");
+            }
         }
     }
 
@@ -308,142 +333,50 @@ public class DetailStepsFragment extends Fragment {
     }
 
 
-    /*@SuppressLint("InlinedApi")
-    private void hideSystemUi() {
-        if (TwoPane == false) {
-            playerView.setSystemUiVisibility(
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            // Hide the nav bar and status bar
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
-        }
-    }*/
-
-
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
         if (TwoPane == false) {
             textLayout.setVisibility(View.GONE);
-            //buttonsLayout.setVisibility(View.GONE);
 
-        playerView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LOW_PROFILE|
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+            playerView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LOW_PROFILE |
+                            View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-            float scale1 = getContext().getResources().getDisplayMetrics().widthPixels;
             int scale2 = getActivity().getResources().getDisplayMetrics().widthPixels;
             int scale3 = getContext().getResources().getDisplayMetrics().heightPixels;
-            playerView.setPadding(0,0,0,0);
+            playerView.setPadding(0, 0, 0, 0);
 
             //The minimum height of buttons, in pixels
             int heightButtonsMin = buttonsLayout.getMinimumHeight();
 
-
-            Log.d("OnHide", "is " + heightButtonsMin + scale1 +"is "+ scale3 +"is "+ scale2);
-
-
             //The minimum height the view will try to be, in pixels
             playerView.setMinimumHeight(scale3 - heightButtonsMin);
             playerView.setMinimumWidth(scale2);
-        }}
-
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        if (TwoPane == false) {
-            //buttonsLayout.setVisibility(View.VISIBLE);
-            textLayout.setVisibility(View.VISIBLE);
-
-            playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (Util.SDK_INT > 23) {
-            if (player != null) {
-            Log.d("OnStart", "is " + playbackPosition + player.getCurrentPosition());}
-            //initializeVideoPlayer();
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if ((Util.SDK_INT <= 23 || player == null)) {
-            if (player != null) {
-            Log.d("OnResume", "is " + playbackPosition + player.getCurrentPosition());}
-            //initializeVideoPlayer();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //showSystemUI();
-        if (Util.SDK_INT <= 23) {
-            Log.d("OnPause", "is " + playbackPosition + player.getCurrentPosition());
-            releasePlayer();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        //showSystemUI();
-        if (Util.SDK_INT > 23) {
-            if (player != null) {
-            Log.d("OnStop", "is " + player.getCurrentPosition());}
-            releasePlayer();
-        }
-    }
-
-   /* @Override
-    public void onDestroy() {
-        super.onDestroy();
-        releasePlayer();
-    }*/
 
     private void releasePlayer() {
         if (player != null) {
             playbackPosition = player.getCurrentPosition();
-            Log.d("OnCurrentRelease", "is " + player.getCurrentPosition());
             currentWindow = player.getCurrentWindowIndex();
             playWhenReady = player.getPlayWhenReady();
             player.release();
             player = null;
-            //showSystemUI();
         }
     }
 
-    /*@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (TwoPane == false) {
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
 
-            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                hideSystemUi();
-                Log.e("On Config Change", "LANDSCAPE");
-            } else {
-                Log.e("On Config Change", "PORTRAIT");
-                showSystemUI();
-            }
-        }
-    }*/
+
     /**
      * Save the current state of this fragment
      */
@@ -454,32 +387,9 @@ public class DetailStepsFragment extends Fragment {
         currentState.putInt(LIST_INDEX, mListIndex);
         currentState.putBoolean(TWO_PANE, TwoPane);
         if (player != null) {
-        currentState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
-        currentState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());
-        currentState.putLong(PLAYBACK_POSITION, player.getCurrentPosition());
-        Log.d("OnSave", "is " + player.getCurrentPosition());}
+            currentState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
+            currentState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());
+            currentState.putLong(PLAYBACK_POSITION, player.getCurrentPosition());
+        }
     }
-
-    /*
-    public static int getScreenHeightInDPs(Context context){
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager windowManager = (WindowManager) context.getSystemService(context.WINDOW_SERVICE);
-        windowManager.getDefaultDisplay().getMetrics(dm);
-        /*
-            In this example code we converted the float value
-            to nearest whole integer number. But, you can get the actual height in dp
-            by removing the Math.round method. Then, it will return a float value, you should
-            also make the necessary changes.
-        */
-
-        /*
-            public int heightPixels
-                The absolute height of the display in pixels.
-
-            public float density
-             The logical density of the display.
-        */
-        /*int heightInDP = Math.round(dm.heightPixels / dm.density);
-        return heightInDP;
-    }*/
 }
