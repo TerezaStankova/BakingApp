@@ -9,6 +9,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,6 +23,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.bakingapp.IdlingResource.SimpleIdlingResource;
 import com.example.android.bakingapp.IngredientsService;
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Recipe;
@@ -44,6 +49,22 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     // Final String to store state information about the movies
     private static final String RECIPES = "recipes";
     private static final String LIST_STATE_KEY = "list_state";
+
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +108,16 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
             }
 
             loadRecipeData();
+
+            // Get the IdlingResource instance
+            getIdlingResource();
         }
+
+            @Override
+            protected void onStart() {
+                super.onStart();
+                loadRecipeData();
+            }
 
 
             /**
@@ -160,6 +190,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 protected void onPreExecute() {
                     super.onPreExecute();
                     mLoadingIndicator.setVisibility(View.VISIBLE);
+
+                    if (mIdlingResource != null) {
+                        mIdlingResource.setIdleState(false);
+                    }
                 }
 
                 @Override
@@ -187,6 +221,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                         mRecipeAdapter.setRecipeData(recipeData);
                     } else {
                         showErrorMessage();
+                    }
+
+                    if (mIdlingResource != null) {
+                        mIdlingResource.setIdleState(true);
                     }
                 }
             }

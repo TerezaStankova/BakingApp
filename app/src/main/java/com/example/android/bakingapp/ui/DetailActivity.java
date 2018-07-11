@@ -2,12 +2,17 @@ package com.example.android.bakingapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import android.widget.Toast;
 
+import com.example.android.bakingapp.IdlingResource.SimpleIdlingResource;
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
@@ -30,6 +35,23 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     private boolean mTwoPane;
     private String RECIPE = "recipe";
+
+
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
 
     @Override
@@ -103,6 +125,9 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             // We're in single-pane mode and displaying fragments on a phone in separate activities
             mTwoPane = false;
         }
+
+        // Get the IdlingResource instance
+        getIdlingResource();
     }
 
     private void closeOnError() {
@@ -113,8 +138,10 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
     // Define the behavior for onItemSelected
     public void onItemSelected(int position) {
-        // Create a Toast that displays the position that was clicked
-        //Toast.makeText(this, "Position clicked = " + position, Toast.LENGTH_SHORT).show();
+
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(false);
+        }
 
         // Handle the two-pane case and replace existing fragments right when a new image is selected from the master list
         if (mTwoPane) {
@@ -147,7 +174,9 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
             intent.putExtras(b);
             startActivity(intent);
 
-
+            if (mIdlingResource != null) {
+                mIdlingResource.setIdleState(true);
+            }
             /*
             // The "Next" button launches a new AndroidMeActivity
             Button nextButton = (Button) findViewById(R.id.next_button);
