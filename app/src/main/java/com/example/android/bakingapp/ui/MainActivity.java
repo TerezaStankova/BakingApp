@@ -66,16 +66,16 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     }
 
     @BindView(R.id.recyclerview_recipes)
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView;
     /* This TextView is used to display errors and will be hidden if there are no errors */
     @BindView(R.id.tv_error_message_display)
-    private TextView mErrorMessageDisplay;
+    TextView mErrorMessageDisplay;
     /*
      * The ProgressBar that will indicate to the user that we are loading data. It will be
      * hidden when no data is loading.
      */
     @BindView(R.id.pb_loading_indicator)
-    private ProgressBar mLoadingIndicator;
+    ProgressBar mLoadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -72,21 +72,20 @@ public class DetailStepsFragment extends Fragment {
     private boolean TwoPane;
 
     // Get a reference to the nextButton in the fragment layout
-    @BindView(R.id.next_button2)
-    private Button nextButtonView;
+    @BindView(R.id.next_button2) Button nextButtonView;
     @BindView(R.id.previous_button)
-    private Button previousButtonView;
+    Button previousButtonView;
     @BindView(R.id.detail_description_layout)
-    private LinearLayout textLayout;
+    LinearLayout textLayout;
     @BindView(R.id.buttons_layout)
-    private LinearLayout buttonsLayout;
+    LinearLayout buttonsLayout;
     @BindView(R.id.ingredients_linear_layout)
-    private LinearLayout ingredientsInfoLayout;
+    LinearLayout ingredientsInfoLayout;
     @BindView(R.id.step_long_description)
-    private TextView longDescriptionView;
+    TextView longDescriptionView;
 
     @BindView(R.id.player_view)
-    private PlayerView playerView;
+    PlayerView playerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment

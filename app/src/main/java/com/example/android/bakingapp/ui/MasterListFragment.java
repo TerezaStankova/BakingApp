@@ -37,7 +37,7 @@ public class MasterListFragment extends Fragment {
 
     // Get a reference to the linear layout in the fragment layout
     @BindView(R.id.steps_linear_layout)
-    private LinearLayout stepsInfoLayout;
+    LinearLayout stepsInfoLayout;
 
     // OnImageClickListener interface, calls a method in the host activity named onImageSelected
     public interface OnItemClickListener {
