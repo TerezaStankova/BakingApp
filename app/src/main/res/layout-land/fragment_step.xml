@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView android:id="@+id/scroll"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-
-
-    <ScrollView
-        android:id="@+id/scroll"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttons_layout"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="2dp">
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/buttons_layout"
+    android:layout_marginEnd="2dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginTop="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,8 +44,7 @@
             android:id="@+id/step_long_description"
             style="@style/myPlainBlackTextStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elegantTextHeight="true" />
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:id="@+id/ingredients_linear_layout"
@@ -112,5 +102,3 @@
         </LinearLayout>
 
     </ScrollView>
-</LinearLayout>
-

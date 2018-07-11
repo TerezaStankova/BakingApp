@@ -2,7 +2,7 @@ package com.example.android.bakingapp;
 
 import timber.log.Timber;
 
-public class BakingDebugTree extends Timber.DebugTree {
+class BakingDebugTree extends Timber.DebugTree {
 @Override
 protected String createStackElementTag(StackTraceElement element) {
         return String.format("[%s#%s:%s]",

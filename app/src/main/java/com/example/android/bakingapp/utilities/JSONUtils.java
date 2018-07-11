@@ -1,8 +1,6 @@
 package com.example.android.bakingapp.utilities;
 
 import android.content.Context;
-import android.graphics.Movie;
-import android.util.Log;
 
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
@@ -12,11 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
-
-import timber.log.Timber;
 
 public class JSONUtils {
 

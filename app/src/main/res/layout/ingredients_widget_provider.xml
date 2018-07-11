@@ -17,6 +17,7 @@
 
         <ImageView
             android:id="@+id/appwidget_image"
+            android:contentDescription="@string/image_for_widget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -24,7 +25,7 @@
             android:id="@+id/appwidget_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Find new recipe"
+            android:text="@string/find_new_recipe"
             style="@style/myWhiteTitleTextStyle"
             android:layout_margin="8dp"/>
 

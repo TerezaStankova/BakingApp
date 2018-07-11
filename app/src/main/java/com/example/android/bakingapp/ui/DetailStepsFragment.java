@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,13 +45,13 @@ import timber.log.Timber;
 public class DetailStepsFragment extends Fragment {
 
     // Final Strings to store state information
-    public static final String STEPS_LIST = "steps";
-    public static final String INGREDIENTS_LIST = "ingredients";
-    public static final String LIST_INDEX = "list_index";
-    public static final String TWO_PANE = "two_pane";
-    public static final String PLAYBACK_POSITION = "playbackPosition";
-    public static final String CURRENT_WINDOW = "currentWindow";
-    public static final String PLAY_WHEN_READY = "playWhenReady";
+    private static final String STEPS_LIST = "steps";
+    private static final String INGREDIENTS_LIST = "ingredients";
+    private static final String LIST_INDEX = "list_index";
+    private static final String TWO_PANE = "two_pane";
+    private static final String PLAYBACK_POSITION = "playbackPosition";
+    private static final String CURRENT_WINDOW = "currentWindow";
+    private static final String PLAY_WHEN_READY = "playWhenReady";
 
 
     // Variables to store a list of recipe's resources and the index of the image that this fragment displays
@@ -73,14 +72,21 @@ public class DetailStepsFragment extends Fragment {
     private boolean TwoPane;
 
     // Get a reference to the nextButton in the fragment layout
-    @BindView(R.id.next_button2) Button nextButtonView;
-    @BindView(R.id.previous_button) Button previousButtonView;
-    @BindView(R.id.detail_description_layout) LinearLayout textLayout;
-    @BindView(R.id.buttons_layout) LinearLayout buttonsLayout;
-    @BindView(R.id.ingredients_linear_layout) LinearLayout ingredientsInfoLayout;
-    @BindView(R.id.step_long_description) TextView longDescriptionView;
+    @BindView(R.id.next_button2)
+    private Button nextButtonView;
+    @BindView(R.id.previous_button)
+    private Button previousButtonView;
+    @BindView(R.id.detail_description_layout)
+    private LinearLayout textLayout;
+    @BindView(R.id.buttons_layout)
+    private LinearLayout buttonsLayout;
+    @BindView(R.id.ingredients_linear_layout)
+    private LinearLayout ingredientsInfoLayout;
+    @BindView(R.id.step_long_description)
+    private TextView longDescriptionView;
 
-    @BindView(R.id.player_view) PlayerView playerView;
+    @BindView(R.id.player_view)
+    private PlayerView playerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -183,7 +189,7 @@ public class DetailStepsFragment extends Fragment {
     }
 
 
-    public void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
+    private void setStepsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
         playerView.setVisibility(View.GONE);
         ingredientsInfoLayout.setVisibility(View.GONE);
 
@@ -200,13 +206,13 @@ public class DetailStepsFragment extends Fragment {
 
             //If the video URL exists, ends with ".mp4" and the device is connected to Internet, initialize the video player
             if (path.length() > 8 && isConnected()) {
-                Timber.d("URL substring: " + path.substring(path.length() - 4));
+                Timber.d("URL substring: %s", path.substring(path.length() - 4));
                 if (path.substring(path.length() - 4).equals(".mp4")) {
                     Timber.d(path);
                     initializeVideoPlayer();
                 }
             } else {
-                if (TwoPane == false) {
+                if (!TwoPane) {
                     int orientation = this.getResources().getConfiguration().orientation;
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         // Set detail description to be visible and hide unnecessary UI if there is no video to show (phone, landscape)
@@ -230,7 +236,7 @@ public class DetailStepsFragment extends Fragment {
 
     }
 
-    public void setIngredientsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
+    private void setIngredientsView(LinearLayout ingredientsInfoLayout, TextView longDescriptionView, Button nextButtonView, Button previousButtonView) {
 
         //Hide playerView, previousButton and view for step description
         playerView.setVisibility(View.GONE);
@@ -238,7 +244,7 @@ public class DetailStepsFragment extends Fragment {
         previousButtonView.setVisibility(View.INVISIBLE);
 
         // Set Layout for ingredients to be visible and hide unnecessary UI if there is no video to show (phone, landscape)
-        if (TwoPane == false) {
+        if (!TwoPane) {
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 textLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -262,11 +268,9 @@ public class DetailStepsFragment extends Fragment {
 
                         TextView mIngredientName = (TextView) mIngredientItem.findViewById(R.id.ingredient_name);
                         Double quantityDouble = ingredient.getQuantity();
-                        mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
-                                + " " + ingredient.getMeasure().toLowerCase());
-
-                        Timber.d("Quantity: " + String.valueOf((ingredient.getQuantity())));
-
+                        String mIngredientsInfo = a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
+                                + " " + ingredient.getMeasure().toLowerCase();
+                        mIngredientName.setText(mIngredientsInfo);
                         ingredientsInfoLayout.addView(mIngredientItem);
                         a++;
                     }
@@ -295,7 +299,7 @@ public class DetailStepsFragment extends Fragment {
         }
     }
 
-    public void initializeVideoPlayer() {
+    private void initializeVideoPlayer() {
         if (path != null && isConnected()) {
             try {
                 player = ExoPlayerFactory.newSimpleInstance(
@@ -312,7 +316,7 @@ public class DetailStepsFragment extends Fragment {
 
 
                 // Hide unnecessary UI if there is a video to show (phone, landscape)
-                if (TwoPane == false) {
+                if (!TwoPane) {
                     int orientation = this.getResources().getConfiguration().orientation;
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         hideSystemUi();
@@ -335,7 +339,7 @@ public class DetailStepsFragment extends Fragment {
 
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
-        if (TwoPane == false) {
+        if (!TwoPane) {
             textLayout.setVisibility(View.GONE);
 
             playerView.setSystemUiVisibility(
@@ -381,15 +385,16 @@ public class DetailStepsFragment extends Fragment {
      * Save the current state of this fragment
      */
     @Override
-    public void onSaveInstanceState(Bundle currentState) {
-        currentState.putParcelableArrayList(STEPS_LIST, (ArrayList<Step>) mSteps);
-        currentState.putParcelableArrayList(INGREDIENTS_LIST, (ArrayList<Ingredient>) mIngredients);
-        currentState.putInt(LIST_INDEX, mListIndex);
-        currentState.putBoolean(TWO_PANE, TwoPane);
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putParcelableArrayList(STEPS_LIST, (ArrayList<Step>) mSteps);
+        savedInstanceState.putParcelableArrayList(INGREDIENTS_LIST, (ArrayList<Ingredient>) mIngredients);
+        savedInstanceState.putInt(LIST_INDEX, mListIndex);
+        savedInstanceState.putBoolean(TWO_PANE, TwoPane);
         if (player != null) {
-            currentState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
-            currentState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());
-            currentState.putLong(PLAYBACK_POSITION, player.getCurrentPosition());
+            savedInstanceState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
+            savedInstanceState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());
+            savedInstanceState.putLong(PLAYBACK_POSITION, player.getCurrentPosition());
         }
     }
 }

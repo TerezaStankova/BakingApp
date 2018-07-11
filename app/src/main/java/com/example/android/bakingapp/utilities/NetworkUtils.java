@@ -16,14 +16,13 @@ public class NetworkUtils {
     private static final String RECIPES_URL = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
 
     public static URL buildUrl() {
-        Uri movieQueryUri = Uri.parse(RECIPES_URL).buildUpon()
+        Uri recipeQueryUri = Uri.parse(RECIPES_URL).buildUpon()
                 .build();
 
         try {
-            URL movieQueryURL = new URL(movieQueryUri.toString());
-            Timber.v("URL: " + movieQueryURL);
-            Log.v("URL","URL: " + movieQueryURL);
-            return movieQueryURL;
+            URL recipeQueryURL = new URL(recipeQueryUri.toString());
+            Timber.v("URL: %s", recipeQueryURL);
+            return recipeQueryURL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

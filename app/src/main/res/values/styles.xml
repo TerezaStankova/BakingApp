@@ -8,13 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="myPinkTitleStyle" parent="TextAppearance.AppCompat.Title">
-        <item name="android:textColor">@color/colorAccentDark</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:layout_marginTop">@dimen/activity_horizontal_margin</item>
-    </style>
-
     <style name="myPinkTextStyle" parent="TextAppearance.AppCompat.Title">
         <item name="android:textColor">@color/colorAccentDark</item>
         <item name="android:textStyle">bold</item>

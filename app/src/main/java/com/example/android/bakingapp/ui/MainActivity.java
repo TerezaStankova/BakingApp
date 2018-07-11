@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -34,14 +33,14 @@ import com.example.android.bakingapp.utilities.NetworkUtils;
 import java.net.URL;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements RecipeAdapterOnClickHandler {
 
-    private RecyclerView mRecyclerView;
     private RecipeAdapter mRecipeAdapter;
-    private TextView mErrorMessageDisplay;
-    public ProgressBar mLoadingIndicator;
+
     private ArrayList<Recipe> mRecipes = new ArrayList();
     private GridLayoutManager layoutManager;
     private Parcelable mListState;
@@ -66,48 +65,49 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
         return mIdlingResource;
     }
 
+    @BindView(R.id.recyclerview_recipes)
+    private RecyclerView mRecyclerView;
+    /* This TextView is used to display errors and will be hidden if there are no errors */
+    @BindView(R.id.tv_error_message_display)
+    private TextView mErrorMessageDisplay;
+    /*
+     * The ProgressBar that will indicate to the user that we are loading data. It will be
+     * hidden when no data is loading.
+     */
+    @BindView(R.id.pb_loading_indicator)
+    private ProgressBar mLoadingIndicator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //ButterKnife.bind(this);
+        ButterKnife.bind(this);
 
-        //Timber.tag("LifeCycles");
-        //Set type of log - Tag is provided for you - more info https://medium.com/@caueferreira/timber-enhancing-your-logging-experience-330e8af97341
+        //Set type of log - Tag is provided for you
+        // More info https://medium.com/@caueferreira/timber-enhancing-your-logging-experience-330e8af97341
         Timber.d("Activity Created");
 
+        final int columns = getResources().getInteger(R.integer.gallery_columns);
 
-            mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_recipes);
-            /* This TextView is used to display errors and will be hidden if there are no errors */
-            mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
+        layoutManager = new GridLayoutManager(this, columns, GridLayoutManager.VERTICAL, false);
 
-            final int columns = getResources().getInteger(R.integer.gallery_columns);
-
-            layoutManager = new GridLayoutManager(this, columns, GridLayoutManager.VERTICAL, false);
-
-            mRecyclerView.setLayoutManager(layoutManager);
-            mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
             /*
-             * The mMovieAdapter is responsible for linking data with the Views that
+             * The mRecipeAdapter is responsible for linking data with the Views that
              * will end up displaying the data.
              */
             mRecipeAdapter = new RecipeAdapter(this);
             /* Setting the adapter attaches it to the RecyclerView in our layout. */
             mRecyclerView.setAdapter(mRecipeAdapter);
-            /*
-             * The ProgressBar that will indicate to the user that we are loading data. It will be
-             * hidden when no data is loading.
-             */
-            mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
 
             if (savedInstanceState != null) {
                 // Load the saved state (the array of trailers) if there is one
-                //mRecipes = (ArrayList<Recipe>) savedInstanceState.getParcelableArrayList(RECIPES);
+                mRecipes = savedInstanceState.getParcelableArrayList(RECIPES);
+                showRecipeDataView();
+                mRecipeAdapter.setRecipeData(mRecipes);
             }
-
-            loadRecipeData();
 
             // Get the IdlingResource instance
             getIdlingResource();
@@ -132,9 +132,9 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 }
             }
 
-            /**Check for internet connection before making the actual request to the API,
+            /**Check for internet connection before making the actual request to the website,
              * so the device can save one unneeded network call given that we know it will
-             * fail to fetch the movies.
+             * fail to fetch the recipes.
              */
 
             private boolean isConnected() {
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 Recipe recipe;
                 recipe = singleRecipe;
                 IngredientsService.startActionAddIngredients(this, recipe.getName(), recipe.getIngredients());
-                Log.d("MAIN", "sent" + recipe.getName());
+                Timber.d("sent%s", recipe.getName());
                 Class destinationClass = DetailActivity.class;
                 Intent intentToStartDetailActivity = new Intent(context, destinationClass);
                 intentToStartDetailActivity.putExtra("parcel_data", recipe);
@@ -199,10 +199,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
                 @Override
                 protected ArrayList<Recipe> doInBackground(String... params) {
 
-                    URL movieRequestUrl = NetworkUtils.buildUrl();
+                    URL recipeRequestUrl = NetworkUtils.buildUrl();
 
                     try {
-                        String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieRequestUrl);
+                        String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(recipeRequestUrl);
 
                         return JSONUtils.getRecipeDataFromJson(MainActivity.this, jsonMovieResponse);
 
@@ -233,14 +233,11 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
 
             @Override
             public void onSaveInstanceState(Bundle savedInstanceState)
-            {
-                super.onSaveInstanceState(savedInstanceState);
-
+            {   super.onSaveInstanceState(savedInstanceState);
+                savedInstanceState.putParcelableArrayList(RECIPES, (ArrayList<Recipe>) mRecipes);
                 // Save list state
                 mListState = layoutManager.onSaveInstanceState();
                 savedInstanceState.putParcelable(LIST_STATE_KEY, mListState);
-                savedInstanceState.putParcelableArrayList(RECIPES, (ArrayList<Recipe>) mRecipes);
-
             }
 
             @Override

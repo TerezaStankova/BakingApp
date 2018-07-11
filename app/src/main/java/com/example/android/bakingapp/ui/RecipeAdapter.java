@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdapterViewHolder> {
 
@@ -48,7 +47,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
     }
 
     /**
-     * Cache of the children views for a movie list item.
+     * Cache of the children views for a recipe list item.
      */
     public class RecipeAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -57,7 +56,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         @BindView(R.id.tv_image) ImageView mPosterImageView;
 
 
-        public RecipeAdapterViewHolder(View view) {
+        RecipeAdapterViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             view.setOnClickListener(this);
@@ -107,13 +106,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
     public void onBindViewHolder(RecipeAdapterViewHolder recipeAdapterViewHolder, int position) {
         Recipe singleRecipe = mRecipeData.get(position);
 
-        Timber.d("recipe %s", singleRecipe.getName());
         recipeAdapterViewHolder.mTitleTextView.setText(singleRecipe.getName().toUpperCase());
-        recipeAdapterViewHolder.mServingsTextView.setText(singleRecipe.getServings() + " servings");
+        String servingsText = singleRecipe.getServings() + " servings";
+        recipeAdapterViewHolder.mServingsTextView.setText(servingsText);
 
         ArrayList<Step> steps = singleRecipe.getSteps();
         Step lastStep = steps.get(steps.size() - 1);
-        Timber.d("onBind Step" + lastStep.getVideoURL() + lastStep.getShortDescription());
 
         Uri uri = Uri.parse(lastStep.getVideoURL());
 

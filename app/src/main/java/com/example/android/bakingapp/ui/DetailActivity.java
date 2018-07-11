@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import android.widget.Toast;
 
@@ -20,8 +19,6 @@ import timber.log.Timber;
 
 public class DetailActivity extends AppCompatActivity implements MasterListFragment.OnItemClickListener{
 
-    //Fields for recipe's info
-    private String name;
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private ArrayList<Step> steps = new ArrayList<>();
     private Recipe recipe;
@@ -29,7 +26,7 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     private boolean mTwoPane;
-    private String RECIPE = "recipe";
+    private final String RECIPE = "recipe";
 
 
 
@@ -54,12 +51,10 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
         steps = recipe.getSteps();
         //Set recipe´s info
-        name = recipe.getName();
+        String name = recipe.getName();
         ingredients = recipe.getIngredients();
         steps = recipe.getSteps();
         setTitle(name);
-        Timber.d("onCreateDetailActivity" + name);
-
 
         if (savedInstanceState == null) {
             if (steps != null) {
@@ -82,12 +77,11 @@ public class DetailActivity extends AppCompatActivity implements MasterListFragm
 
         // Determine if you're creating a two-pane or single-pane display
         if (findViewById(R.id.small_divider) != null) {
-            Timber.d("Name " + name);
             // This LinearLayout will only initially exist in the two-pane tablet case
             mTwoPane = true;
 
             if (savedInstanceState == null) {
-                Timber.d("Name " + name);
+                Timber.d("Name %s", name);
                 // In two-pane mode, add initial DetailStepFragments to the screen
                 DetailStepsFragment newFragment = new DetailStepsFragment();
 

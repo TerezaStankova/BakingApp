@@ -18,6 +18,8 @@
     <string name="add_widget">Add widget</string>
     <string name="find_new_recipe">Find new recipe</string>
     <string name="ingredients_for">Ingredients for \u0020 </string>
+    <string name="image_for_widget">Image for widget</string>
+    <string name="list_of_ingredients">/0020 List of Ingredients</string>
 
 </resources>
 

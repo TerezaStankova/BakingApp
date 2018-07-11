@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.example.android.bakingapp.model.Ingredient;
@@ -20,11 +19,9 @@ import timber.log.Timber;
  */
 public class IngredientsWidgetProvider extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,ArrayList<Ingredient> mIngredients, String name,
-                                int appWidgetId) {
+    private static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, ArrayList<Ingredient> mIngredients, String name,
+                                        int appWidgetId) {
 
-        Log.v("widget Updated", "This name" + name);
-        //CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
         String title;
         if (name != null) {
@@ -42,9 +39,8 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
                     RemoteViews mIngredientItem = new RemoteViews(context.getPackageName(), R.layout.widget_ingredient_item);
 
                     Double quantityDouble = ingredient.getQuantity();
-                    mIngredientItem.setTextViewText(R.id.ingredient_name_widget,a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString() + " " + ingredient.getMeasure().toLowerCase());
-
-                    Log.v("widget", "Quantity: " + String.valueOf((ingredient.getQuantity())));
+                    String textTitle = a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString() + " " + ingredient.getMeasure().toLowerCase();
+                    mIngredientItem.setTextViewText(R.id.ingredient_name_widget,textTitle);
                     Timber.d("Quantity");
 
 
@@ -54,7 +50,7 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
                 }
             }
         } else {
-            Log.v("widget", "This fragment has a null list of ingredients");
+            Timber.tag("widget").v("This fragment has a null list of ingredients");
         }
 
         //Create an Intent to launch MainActivity when clicked

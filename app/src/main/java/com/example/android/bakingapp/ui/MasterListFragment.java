@@ -2,7 +2,6 @@ package com.example.android.bakingapp.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +16,28 @@ import com.example.android.bakingapp.model.Step;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class MasterListFragment extends Fragment {
 
     // Define a new interface OnItemClickListener that triggers a callback in the host activity
-    OnItemClickListener mCallback;
+    private OnItemClickListener mCallback;
+
+    // Final Strings to store state information about the steps
+    private static final String RECIPE = "recipe";
+
+    // Tag for logging
+    private static final String TAG = "MasterListFragment";
+
+    // Variables to store an array of steps
+    private ArrayList<Step> mSteps = new ArrayList<>();
+    private Recipe mRecipe;
+
+    // Get a reference to the linear layout in the fragment layout
+    @BindView(R.id.steps_linear_layout)
+    private LinearLayout stepsInfoLayout;
 
     // OnImageClickListener interface, calls a method in the host activity named onImageSelected
     public interface OnItemClickListener {
@@ -45,24 +60,11 @@ public class MasterListFragment extends Fragment {
     }
 
 
-    // Final Strings to store state information about the steps
-    private static final String STEPS = "steps";
-    private static final String RECIPE = "recipe";
-
-    // Tag for logging
-    private static final String TAG = "MasterListFragment";
-
-    // Variables to store an array of steps
-    private ArrayList<Step> mSteps = new ArrayList<>();
-
-    private Recipe mRecipe;
-
-
     // Mandatory empty constructor
     public MasterListFragment() {
     }
 
-    // Inflates the GridView of all AndroidMe images
+    // Inflates the View of all steps short description
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -70,22 +72,19 @@ public class MasterListFragment extends Fragment {
         // Load the saved state (the array of trailers) if there is one
         if (savedInstanceState != null) {
            mRecipe = (Recipe) savedInstanceState.getParcelable(RECIPE);
-           //mSteps = (ArrayList<Step>) savedInstanceState.getParcelableArrayListExtra(STEPS);
-            mSteps = mRecipe.getSteps();
+           mSteps = mRecipe.getSteps();
         }
 
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container, false);
 
-        // Get a reference to the linear layout in the fragment layout
-        //FINAL?
-        final LinearLayout stepsInfoLayout = (LinearLayout) rootView.findViewById(R.id.steps_linear_layout);
-        //stepsInfoLayout.removeAllViews();
+        // Get a reference to the views in the fragment layout
+        ButterKnife.bind(this, rootView);
 
         View IngredientLabel = LayoutInflater.from(getActivity()).inflate(
                 R.layout.step_list_item, null);
 
         TextView mIngredientLabelText = (TextView) IngredientLabel.findViewById(R.id.step_short_description);
-        mIngredientLabelText.setText(" List of Ingredients ");
+        mIngredientLabelText.setText(R.string.list_of_ingredients);
         IngredientLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,12 +92,8 @@ public class MasterListFragment extends Fragment {
             }
         });
 
-        Log.v("Log", "Step Name: " + (stepsInfoLayout != null));
+        stepsInfoLayout.addView(IngredientLabel);
 
-
-        //if (stepsInfoLayout != null) {
-            stepsInfoLayout.addView(IngredientLabel);
-        //}
 
 
         if (mSteps != null) {
@@ -109,10 +104,8 @@ public class MasterListFragment extends Fragment {
                             R.layout.step_list_item, null);
 
                     TextView mStepName = (TextView) mStepItem.findViewById(R.id.step_short_description);
-
-                    mStepName.setText(" " + step.getShortDescription());
-                    Timber.v("Step Name: " + step.getShortDescription());
-                    Log.v("Log", "Step Name: " + step.getShortDescription());
+                    String nameText = " " + step.getShortDescription();
+                    mStepName.setText(nameText);
 
                     mStepItem.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -128,17 +121,13 @@ public class MasterListFragment extends Fragment {
         }
 
         else {
-            Log.v(TAG, "This fragment has a null list of steps");
+            Timber.tag(TAG).v("This fragment has a null list of steps");
         }
 
         // Return the root view
         return rootView;
     }
 
-
-    //public void setSteps(ArrayList<Step> trailers) {
-       // mSteps = trailers;
-    //}
 
     public void setRecipe(Recipe recipe) {
         mRecipe = recipe;
@@ -148,7 +137,6 @@ public class MasterListFragment extends Fragment {
     /*Save the current state of this fragment*/
     @Override
     public void onSaveInstanceState(Bundle currentState) {
-        //currentState.putParcelableArrayListEXTRA(STEPS, mSteps);
         currentState.putParcelable(RECIPE, mRecipe);
     }
 }
