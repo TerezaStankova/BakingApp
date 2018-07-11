@@ -1,18 +1,13 @@
 package com.example.android.bakingapp.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
-import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.support.v4.app.Fragment;
 import android.widget.LinearLayout;
@@ -40,23 +35,20 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import timber.log.Timber;
 
 public class DetailStepsFragment extends Fragment {
 
-    // Final Strings to store state information about the list of images and list index
+    // Final Strings to store state information
     public static final String STEPS_LIST = "steps";
     public static final String INGREDIENTS_LIST = "ingredients";
     public static final String LIST_INDEX = "list_index";
-    public static final String TWOPANE = "two_pane";
+    public static final String TWO_PANE = "two_pane";
     public static final String PLAYBACK_POSITION = "playbackPosition";
     public static final String CURRENT_WINDOW = "currentWindow";
     public static final String PLAY_WHEN_READY = "playWhenReady";
 
-    // Tag for logging
-    private static final String TAG = "DetailStepsFragment";
 
     // Variables to store a list of recipe's resources and the index of the image that this fragment displays
     private ArrayList<Step> mSteps;
@@ -86,51 +78,52 @@ public class DetailStepsFragment extends Fragment {
     }
 
     /**
-     * Inflates the fragment layout file and sets the correct resource for the image to display
+     * Inflates the fragment layout file
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Load the saved state (the list of images and list index) if there is one
+        // Load the saved state if there is one
         if (savedInstanceState != null) {
             mSteps = savedInstanceState.getParcelableArrayList(STEPS_LIST);
             mIngredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_LIST);
             mListIndex = savedInstanceState.getInt(LIST_INDEX);
-            TwoPane = savedInstanceState.getBoolean(TWOPANE);
+            TwoPane = savedInstanceState.getBoolean(TWO_PANE);
 
             playbackPosition = savedInstanceState.getLong(PLAYBACK_POSITION);
             currentWindow = savedInstanceState.getInt(CURRENT_WINDOW);
             playWhenReady = savedInstanceState.getBoolean(PLAY_WHEN_READY);
         }
 
-        // Inflate the Android-Me fragment layout
+        // Inflate the step fragment layout
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
 
         playerView = (PlayerView) rootView.findViewById(R.id.player_view);
-        //playerView.setMinimumHeight(getScreenHeightInDPs(getContext())/5);
 
-        // Get a reference to the ImageView in the fragment layout
-        //final ImageView imageView = (ImageView) rootView.findViewById(R.id.body_part_image_view);
+        // Get a reference to the views in the fragment layout
         textLayout = (LinearLayout) rootView.findViewById(R.id.detail_description_layout);
         buttonsLayout = (LinearLayout) rootView.findViewById(R.id.buttons_layout);
 
-
-        // Get a reference to the ImageView in the fragment layout
+        // Get a reference to the view for description of step in the fragment layout
         final TextView longDescriptionView = (TextView) rootView.findViewById(R.id.step_long_description);
 
-        // Get a reference to the ImageView in the fragment layout
+        // Get a reference to the view for ingredients in the fragment layout
+        final LinearLayout ingredientsInfoLayout = (LinearLayout) rootView.findViewById(R.id.ingredients_linear_layout);
+
+
+        // Get a reference to the nextButton in the fragment layout
         final Button nextButtonView = (Button) rootView.findViewById(R.id.next_button2);
 
-        // Get a reference to the ImageView in the fragment layout
+        // Get a reference to the previousButton in the fragment layout
         final Button previousButtonView = (Button) rootView.findViewById(R.id.previous_button);
 
-        final LinearLayout ingredientsInfoLayout = (LinearLayout) rootView.findViewById(R.id.ingredients_linear_layout);
+        // Show ingredient if first option was selected or nothing was selected
 
         if (mListIndex == 0) {
             setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
 
         } else {
-            // If index is not 0, show steps
+            //Show step with detail description instead
             // if steps are not null, show them, otherwise, create a Log statement that indicates that the list was not found
             setStepsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
 
@@ -141,11 +134,11 @@ public class DetailStepsFragment extends Fragment {
         nextButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Increment position as long as the index remains <= the size of the steps list
+                // Increment position as long as the index remains < the size of the steps list
                 if (mListIndex < (mSteps.size())) {
                     mListIndex++;
                 }
-                // Set the image resource to the new list item
+                // Set the view accordingly to the next item
                 if (mListIndex == 0) {
                     setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
                 }
@@ -163,7 +156,7 @@ public class DetailStepsFragment extends Fragment {
                 if (mListIndex > 0) {
                     mListIndex--;
                 }
-                // Set the image resource to the new list item
+                // Set the view accordingly to the previous item
                 if (mListIndex == 0) {
                     setIngredientsView(ingredientsInfoLayout, longDescriptionView, nextButtonView, previousButtonView);
                 }
@@ -179,21 +172,19 @@ public class DetailStepsFragment extends Fragment {
 
 
 
-    // Setter methods for keeping track of the list images this fragment can display and which image
-    // in the list is currently being displayed
+    // Setter methods for keeping track of the steps and ingredients of current recipe
 
     public void setSteps(ArrayList<Step> steps) {
         mSteps = steps;
     }
-
     public void setIngredients(ArrayList<Ingredient> ingredients) {
         mIngredients = ingredients;
     }
-
     public void setListIndex(int index) {
         mListIndex = index;
     }
 
+    // Setter method for keeping track of type of the device (mobile/tablet mode)
     public void setTwoPane(boolean twoPane) {TwoPane = twoPane; }
 
 
@@ -202,30 +193,21 @@ public class DetailStepsFragment extends Fragment {
         ingredientsInfoLayout.setVisibility(View.GONE);
 
         if (mSteps != null){
-            /*
-            DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-            String path = mSteps.get(mListIndex -1).getVideoURL();
-            //Extractor MediaSource - MP3/MP4
-            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
-                    mediaDataSourceFactory, extractorsFactory, null, null);
-            player.prepare(mediaSource);
-            player.setPlayWhenReady(true);*/
-
             //Check if there is a video resource URL
             path = mSteps.get(mListIndex - 1).getVideoURL();
 
-
+            //Set detail description of the selected step
             longDescriptionView.setText(mSteps.get(mListIndex -1).getDescription());
             longDescriptionView.setVisibility(View.VISIBLE);
+
+            //Set visibility of previous button
             previousButtonView.setVisibility(View.VISIBLE);
 
+            //If the video URL exists and ends with ".mp4", initialize the video player
             if (path.length() > 8){
-
-                Log.d("URL", "URL substring: " + path.substring(path.length()-4) + path.length());
+                Timber.d("URL substring: " + path.substring(path.length() - 4) + path.length());
                 if(path.substring(path.length()-4).equals(".mp4")){
-                    Log.d("URL for video2", "URL" + path);
                     Timber.d(path);
-                    Log.d("Log", "path" + path);
                     initializeVideoPlayer();}
             } else {
                 if (TwoPane == false){
@@ -245,7 +227,7 @@ public class DetailStepsFragment extends Fragment {
         }
 
         } else {
-            Log.v(TAG, "This fragment has a null list of steps");
+            Timber.v("This fragment has a null list of steps");
             longDescriptionView.setText("No steps available");
             longDescriptionView.setVisibility(View.VISIBLE);
         }
@@ -280,15 +262,14 @@ public class DetailStepsFragment extends Fragment {
                     mIngredientName.setText(a + ". " + ingredient.getName().toUpperCase() + ": " + quantityDouble.toString()
                             + " " + ingredient.getMeasure().toLowerCase());
 
-                    Log.v(TAG, "Quantity: " + String.valueOf((ingredient.getQuantity())));
-                    Timber.d("Quantity");
+                    Timber.d("Quantity: " + String.valueOf((ingredient.getQuantity())));
 
                     ingredientsInfoLayout.addView(mIngredientItem);
                     a++;
                 }
             }
         } else {
-            Log.v(TAG, "This fragment has a null list of ingredients");
+            Timber.d("This fragment has a null list of ingredients");
         }
     }
     }
@@ -471,7 +452,7 @@ public class DetailStepsFragment extends Fragment {
         currentState.putParcelableArrayList(STEPS_LIST, (ArrayList<Step>) mSteps);
         currentState.putParcelableArrayList(INGREDIENTS_LIST, (ArrayList<Ingredient>) mIngredients);
         currentState.putInt(LIST_INDEX, mListIndex);
-        currentState.putBoolean(TWOPANE, TwoPane);
+        currentState.putBoolean(TWO_PANE, TwoPane);
         if (player != null) {
         currentState.putInt(CURRENT_WINDOW, player.getCurrentWindowIndex());
         currentState.putBoolean(PLAY_WHEN_READY, player.getPlayWhenReady());

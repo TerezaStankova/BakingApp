@@ -40,16 +40,16 @@ public class MainActivityTest {
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
-    //private IdlingResource mIdlingResource;
+    private IdlingResource mIdlingResource;
 
     // Registers any resource that needs to be synchronized with Espresso before the test is run.
-    /*@Before
+    @Before
     public void registerIdlingResource() {
         mIdlingResource = mActivityTestRule.getActivity().getIdlingResource();
         // To prove that the test fails, omit this call
-        // method Espresso.registerIdlingResources(mIdlingResource) depracated
+        // method Espresso.registerIdlingResources(mIdlingResource) deprecated
         IdlingRegistry.getInstance().register(mIdlingResource);
-    }*/
+    }
 
     @Test
     public void mainActivityToDetailActivityTest() {
@@ -123,12 +123,12 @@ public class MainActivityTest {
     }
 
     // Unregister resources when not needed to avoid malfunction.
-    /*@After
+    @After
     public void unregister() {
         if (mIdlingResource != null) {
             IdlingRegistry.getInstance().unregister(mIdlingResource);
         }
-    }*/
+    }
 
 
 }
