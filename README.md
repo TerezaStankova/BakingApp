@@ -1,7 +1,7 @@
 # BakingApp
 ## Android Developer Nanodegree: Third project
 
-#### Are you in **mood to bake**? Do you feel like trying something new? This app is exactly for you. 
+Are you in **mood to bake**? Do you feel like trying **something new**? This app is exactly for you! Try it now and find your inspiration. 
 
 ## About the app:
 + This app allows users to view video recipes.  
